@@ -323,14 +323,18 @@ def _read_gateway_config() -> tuple[str, str]:
         with open(config_path, "r") as f:
             config = yaml.safe_load(f)
 
-        gateway_uri = config.get("gateway", {}).get("uri")
+        # Handle case where 'gateway' key might be None
+        gateway_config = config.get("gateway") or {}
+        gateway_uri = gateway_config.get("uri") if isinstance(gateway_config, dict) else None
         if not gateway_uri:
             raise ValueError(
                 "Gateway URI not found in agent_config.yaml under 'gateway.uri'"
             )
         
         # Get AWS region with fallback logic: config -> AWS_REGION env var -> us-east-1
-        aws_region = config.get("aws", {}).get("region")
+        # Handle case where 'aws' key might be None
+        aws_config = config.get("aws") or {}
+        aws_region = aws_config.get("region") if isinstance(aws_config, dict) else None
         if not aws_region:
             aws_region = os.environ.get("AWS_REGION", "us-east-1")
 
@@ -1166,7 +1170,9 @@ async def main():
             config = yaml.safe_load(f)
         
         # Try to get region from config first
-        aws_region = config.get("aws", {}).get("region")
+        # Handle case where 'aws' key might be None
+        aws_config = config.get("aws") or {}
+        aws_region = aws_config.get("region") if isinstance(aws_config, dict) else None
         
         if aws_region:
             logger.info(f"Using AWS region from agent_config.yaml: {aws_region}")
