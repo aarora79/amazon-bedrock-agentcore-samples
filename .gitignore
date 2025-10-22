@@ -234,3 +234,8 @@ lambda.zip
 02-use-cases/customer-support-assistant/.bedrock_agentcore.yaml
 02-use-cases/customer-support-assistant/.agentcore.yaml
 02-use-cases/customer-support-assistant/scripts/get_cognito_token.sh
+### CDK artifacts
+cdk.out/
+### Bedrock AgentCore ###
+.bedrock_agentcore/
+.bedrock_agentcore.yaml
