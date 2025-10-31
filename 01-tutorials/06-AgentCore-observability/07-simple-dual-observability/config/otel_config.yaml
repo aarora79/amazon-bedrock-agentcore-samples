@@ -44,12 +44,10 @@ exporters:
     resource_to_telemetry_conversion:
       enabled: true
     dimension_rollup_option: NoDimensionRollup
-    metric_declarations:
-      - dimensions: [[service.name, operation]]
-        metric_name_selectors:
-          - latency
-          - token_count
-          - error_count
+    # Note: Metrics are collected from the Bedrock AgentCore Runtime.
+    # The runtime automatically emits metrics like Invocations, Latency, Errors, etc.
+    # These are available in CloudWatch under the bedrock-agentcore namespace.
+    # Uncomment metric_declarations below if your application emits custom metrics.
 
   # Braintrust OTLP Exporter
   otlp/braintrust:
