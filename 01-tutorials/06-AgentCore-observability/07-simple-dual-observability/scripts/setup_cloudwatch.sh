@@ -11,7 +11,7 @@ PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 DASHBOARD_NAME="${DASHBOARD_NAME:-AgentCore-Observability-Demo}"
 LOG_GROUP_NAME="${LOG_GROUP_NAME:-/aws/agentcore/traces}"
-NAMESPACE="${NAMESPACE:-AgentCore/Observability}"
+NAMESPACE="${NAMESPACE:-bedrock-agentcore}"
 
 # Help text
 show_help() {
@@ -128,7 +128,24 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AgentCore/Observability", "latency", { "stat": "Average" } ],
+                    [ "bedrock-agentcore", "Invocations", { "stat": "Sum" } ]
+                ],
+                "period": 300,
+                "stat": "Sum",
+                "region": "REGION_PLACEHOLDER",
+                "title": "Agent Invocations",
+                "yAxis": {
+                    "left": {
+                        "label": "Count"
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "bedrock-agentcore", "Latency", { "stat": "Average" } ],
                     [ "...", { "stat": "p50" } ],
                     [ "...", { "stat": "p90" } ],
                     [ "...", { "stat": "p99" } ]
@@ -148,24 +165,8 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AgentCore/Observability", "token_count", { "stat": "Sum" } ]
-                ],
-                "period": 300,
-                "stat": "Sum",
-                "region": "REGION_PLACEHOLDER",
-                "title": "Token Consumption",
-                "yAxis": {
-                    "left": {
-                        "label": "Tokens"
-                    }
-                }
-            }
-        },
-        {
-            "type": "metric",
-            "properties": {
-                "metrics": [
-                    [ "AgentCore/Observability", "error_count", { "stat": "Sum" } ]
+                    [ "bedrock-agentcore", "System Errors", { "stat": "Sum" } ],
+                    [ ".", "User Errors", { "stat": "Sum" } ]
                 ],
                 "period": 300,
                 "stat": "Sum",
@@ -179,31 +180,79 @@ DASHBOARD_BODY=$(cat << 'EOF'
             }
         },
         {
-            "type": "log",
+            "type": "metric",
             "properties": {
-                "query": "SOURCE 'LOG_GROUP_PLACEHOLDER'\n| fields @timestamp, @message\n| filter @message like /trace/\n| sort @timestamp desc\n| limit 20",
+                "metrics": [
+                    [ "bedrock-agentcore", "Throttles", { "stat": "Sum" } ]
+                ],
+                "period": 300,
+                "stat": "Sum",
                 "region": "REGION_PLACEHOLDER",
-                "title": "Recent Trace Events"
+                "title": "Throttled Requests",
+                "yAxis": {
+                    "left": {
+                        "label": "Count"
+                    }
+                }
             }
         },
         {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/Bedrock", "Invocations", { "stat": "Sum" } ]
+                    [ "bedrock-agentcore", "Session Count", { "stat": "Average" } ]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "REGION_PLACEHOLDER",
+                "title": "Concurrent Sessions",
+                "yAxis": {
+                    "left": {
+                        "label": "Sessions"
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "bedrock-agentcore", "CPUUsed-vCPUHours", { "stat": "Sum" } ]
                 ],
                 "period": 300,
                 "stat": "Sum",
                 "region": "REGION_PLACEHOLDER",
-                "title": "Bedrock Invocations"
+                "title": "CPU Usage",
+                "yAxis": {
+                    "left": {
+                        "label": "vCPU-Hours"
+                    }
+                }
+            }
+        },
+        {
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "bedrock-agentcore", "MemoryUsed-GBHours", { "stat": "Sum" } ]
+                ],
+                "period": 300,
+                "stat": "Sum",
+                "region": "REGION_PLACEHOLDER",
+                "title": "Memory Usage",
+                "yAxis": {
+                    "left": {
+                        "label": "GB-Hours"
+                    }
+                }
             }
         },
         {
             "type": "log",
             "properties": {
-                "query": "SOURCE 'LOG_GROUP_PLACEHOLDER'\n| fields @timestamp, service.name, operation, latency\n| stats avg(latency) as avg_latency, max(latency) as max_latency by operation\n| sort avg_latency desc",
+                "query": "SOURCE 'LOG_GROUP_PLACEHOLDER'\n| fields @timestamp, @message\n| filter @message like /trace/\n| sort @timestamp desc\n| limit 20",
                 "region": "REGION_PLACEHOLDER",
-                "title": "Latency by Operation"
+                "title": "Recent Trace Events"
             }
         }
     ]
