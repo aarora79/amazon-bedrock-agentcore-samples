@@ -119,33 +119,6 @@ scripts/setup_cloudwatch.sh --dashboard MyAgentCoreDashboard
 - `LOG_GROUP_NAME` - CloudWatch log group name
 - `NAMESPACE` - CloudWatch metrics namespace
 
-### setup_braintrust.sh
-
-Configure Braintrust integration for AI-focused observability.
-
-```bash
-# Interactive setup
-scripts/setup_braintrust.sh
-
-# Setup with existing API key
-scripts/setup_braintrust.sh --api-key bt-xxxxx
-
-# Test existing configuration
-scripts/setup_braintrust.sh --test
-```
-
-**What it does:**
-1. Guides through Braintrust account creation
-2. Helps generate API key
-3. Configures OTEL integration
-4. Tests connection to Braintrust API
-5. Creates dual-export OTEL config
-6. Generates usage documentation
-
-**Environment Variables:**
-- `BRAINTRUST_API_KEY` - Braintrust API key
-- `SERVICE_NAME` - Service name for OTEL traces
-
 ### cleanup.sh
 
 Remove all resources created by the tutorial.
@@ -182,7 +155,7 @@ scripts/check_prerequisites.sh
 
 Fix any issues reported before proceeding.
 
-### Minimal Setup (CloudWatch only)
+### CloudWatch Setup (Default)
 
 ```bash
 scripts/setup_all.sh
@@ -194,10 +167,15 @@ python simple_observability.py --scenario all
 ### Full Setup (CloudWatch + Braintrust)
 
 ```bash
-scripts/setup_all.sh --braintrust
-
-# Run observability demo with Braintrust
+# With Braintrust API key from environment
 export BRAINTRUST_API_KEY=your_api_key_here
+export BRAINTRUST_PROJECT_ID=your_project_id
+scripts/setup_all.sh
+
+# Or pass as arguments
+scripts/setup_all.sh --api-key your_api_key_here --project-id your_project_id
+
+# Run observability demo
 python simple_observability.py --scenario all
 ```
 
@@ -210,10 +188,7 @@ scripts/deploy_agent.sh
 # 2. Setup CloudWatch
 scripts/setup_cloudwatch.sh
 
-# 3. (Optional) Setup Braintrust
-scripts/setup_braintrust.sh
-
-# 4. Run demo (automatically reads agent ID from .deployment_metadata.json)
+# 3. Run demo (automatically reads agent ID from .deployment_metadata.json)
 python simple_observability.py --scenario all
 ```
 
@@ -301,13 +276,6 @@ Check:
 1. Log group exists: `aws logs describe-log-groups --log-group-name-prefix /aws/agentcore`
 2. X-Ray is enabled: `aws xray get-sampling-rules`
 3. IAM role has X-Ray permissions (see `xray-permissions.json`)
-
-### No Traces in Braintrust
-
-Check:
-1. API key is valid: `scripts/setup_braintrust.sh --test`
-2. OTEL config has Braintrust exporter enabled
-3. Network connectivity to api.braintrust.dev
 
 ### Dashboard Shows No Data
 

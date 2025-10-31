@@ -31,18 +31,16 @@ show_help() {
 Complete setup for AgentCore Simple Dual Observability Tutorial.
 
 This script orchestrates the complete deployment:
-1. Deploy agent to AgentCore Runtime
+1. Deploy agent to AgentCore Runtime (with optional Braintrust)
 2. Set up CloudWatch dashboard and logging
-3. (Optional) Set up Braintrust integration
 
 Usage: $0 [OPTIONS]
 
 Options:
     -h, --help                      Show this help message
     -r, --region REGION             AWS region (default: us-east-1)
-    -b, --braintrust                Include Braintrust setup (interactive)
-    -k, --api-key KEY               Braintrust API key
-    -p, --project-id ID             Braintrust project ID
+    -k, --api-key KEY               Braintrust API key (optional)
+    -p, --project-id ID             Braintrust project ID (optional)
 
 Environment Variables:
     AWS_REGION                      AWS region for deployment
@@ -56,10 +54,10 @@ Example:
     # Setup with Braintrust using environment variables
     export BRAINTRUST_API_KEY=bt-xxxxx
     export BRAINTRUST_PROJECT_ID=your-project-id
-    ./setup_all.sh --braintrust
+    ./setup_all.sh
 
     # Setup with Braintrust using command-line args
-    ./setup_all.sh --braintrust --api-key bt-xxxxx --project-id your-project-id
+    ./setup_all.sh --api-key bt-xxxxx --project-id your-project-id
 
     # Setup in specific region
     ./setup_all.sh --region us-west-2
@@ -78,10 +76,6 @@ while [[ $# -gt 0 ]]; do
             AWS_REGION="$2"
             export AWS_REGION
             shift 2
-            ;;
-        -b|--braintrust)
-            SETUP_BRAINTRUST=true
-            shift
             ;;
         -k|--api-key)
             BRAINTRUST_API_KEY="$2"
@@ -127,11 +121,11 @@ echo ""
 echo "This script will set up the complete observability demo:"
 echo "1. Deploy agent to AgentCore Runtime"
 echo "2. Configure CloudWatch dashboard and X-Ray"
-if [ "$SETUP_BRAINTRUST" = true ]; then
-    echo "3. Configure Braintrust integration"
-fi
 echo ""
 echo "Region: $AWS_REGION"
+if [ "$SETUP_BRAINTRUST" = true ]; then
+    echo "Braintrust: ENABLED"
+fi
 echo ""
 read -p "Continue with setup? (y/n) " -n 1 -r
 echo ""
@@ -185,24 +179,6 @@ echo ""
 read -p "CloudWatch configured successfully. Press ENTER to continue..."
 echo ""
 
-# Step 3: Braintrust summary (if configured)
-if [ "$SETUP_BRAINTRUST" = true ]; then
-    echo "========================================"
-    echo "STEP 3: BRAINTRUST OBSERVABILITY"
-    echo "========================================"
-    echo ""
-    echo "✓ Braintrust observability has been configured during deployment"
-    echo ""
-    echo "The agent has been deployed with:"
-    echo "  - Strands telemetry enabled"
-    echo "  - OTEL export to Braintrust endpoint"
-    echo "  - API key and project ID configured"
-    echo ""
-    echo "Note: The setup_braintrust.sh script is not needed when deploying"
-    echo "      with Braintrust configuration. It's only for reference."
-    echo ""
-fi
-
 # Load deployment metadata
 AGENT_ID=""
 if [ -f "$SCRIPT_DIR/.deployment_metadata.json" ]; then
@@ -250,12 +226,8 @@ fi
 
 echo "Documentation:"
 echo "- CloudWatch URLs: $SCRIPT_DIR/cloudwatch-urls.txt"
-if [ -f "$SCRIPT_DIR/braintrust-usage.md" ]; then
-    echo "- Braintrust Guide: $SCRIPT_DIR/braintrust-usage.md"
-fi
 echo ""
 echo "For help with individual components, run scripts with --help:"
 echo "- ./deploy_agent.sh --help"
 echo "- ./setup_cloudwatch.sh --help"
-echo "- ./setup_braintrust.sh --help"
 echo ""
