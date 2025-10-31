@@ -258,8 +258,8 @@ Available test prompts:
 
     args = parser.parse_args()
 
-    # Get script directory
-    script_dir = Path(__file__).parent
+    # Get script directory (parent of tests/)
+    script_dir = Path(__file__).parent.parent
 
     # Load agent metadata
     try:
