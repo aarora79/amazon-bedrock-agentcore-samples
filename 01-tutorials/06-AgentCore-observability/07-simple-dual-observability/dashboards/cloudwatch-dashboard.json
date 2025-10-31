@@ -9,18 +9,18 @@
       "properties": {
         "metrics": [
           [
-            "AgentCore/Observability",
-            "RequestCount",
+            "bedrock-agentcore",
+            "Invocations",
             {
               "stat": "Sum",
-              "label": "Total Requests"
+              "label": "Total Invocations"
             }
           ]
         ],
         "view": "timeSeries",
         "stacked": false,
         "region": "us-east-1",
-        "title": "Request Rate",
+        "title": "Agent Invocations",
         "period": 60,
         "yAxis": {
           "left": {
@@ -31,7 +31,7 @@
         "annotations": {
           "horizontal": [
             {
-              "label": "Target Rate",
+              "label": "Expected Rate",
               "value": 10
             }
           ]
@@ -47,8 +47,8 @@
       "properties": {
         "metrics": [
           [
-            "AgentCore/Observability",
-            "RequestLatency",
+            "bedrock-agentcore",
+            "Latency",
             {
               "stat": "p50",
               "label": "P50 Latency"
@@ -79,7 +79,7 @@
         "view": "timeSeries",
         "stacked": false,
         "region": "us-east-1",
-        "title": "Request Latency (ms)",
+        "title": "Agent Response Latency",
         "period": 60,
         "yAxis": {
           "left": {
@@ -102,40 +102,35 @@
       "type": "metric",
       "x": 0,
       "y": 6,
-      "width": 8,
+      "width": 12,
       "height": 6,
       "properties": {
         "metrics": [
           [
-            "AgentCore/Observability",
-            "ErrorCount",
+            "bedrock-agentcore",
+            "System Errors",
             {
               "stat": "Sum",
-              "label": "Total Errors"
+              "label": "System Errors"
             }
           ],
           [
             ".",
-            "RequestCount",
+            "User Errors",
             {
               "stat": "Sum",
-              "label": "Total Requests",
-              "visible": false
+              "label": "User Errors"
             }
           ]
         ],
         "view": "timeSeries",
-        "stacked": false,
+        "stacked": true,
         "region": "us-east-1",
-        "title": "Error Rate",
+        "title": "Error Count by Type",
         "period": 60,
         "yAxis": {
           "left": {
             "label": "Count",
-            "showUnits": false
-          },
-          "right": {
-            "label": "Percent",
             "showUnits": false
           }
         },
@@ -152,42 +147,98 @@
     },
     {
       "type": "metric",
-      "x": 8,
+      "x": 12,
       "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "bedrock-agentcore",
+            "Throttles",
+            {
+              "stat": "Sum",
+              "label": "Throttled Requests"
+            }
+          ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "Request Throttles",
+        "period": 60,
+        "yAxis": {
+          "left": {
+            "label": "Count",
+            "showUnits": false
+          }
+        },
+        "annotations": {
+          "horizontal": [
+            {
+              "label": "Zero Throttles Target",
+              "value": 0,
+              "color": "#2ca02c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 12,
       "width": 8,
       "height": 6,
       "properties": {
         "metrics": [
           [
-            "AgentCore/Observability",
-            "TokensUsed",
+            "bedrock-agentcore",
+            "Session Count",
             {
               "stat": "Sum",
-              "dimensions": {
-                "TokenType": "Input"
-              },
-              "label": "Input Tokens"
-            }
-          ],
-          [
-            "...",
-            {
-              "stat": "Sum",
-              "dimensions": {
-                "TokenType": "Output"
-              },
-              "label": "Output Tokens"
+              "label": "Active Sessions"
             }
           ]
         ],
         "view": "timeSeries",
-        "stacked": true,
+        "stacked": false,
         "region": "us-east-1",
-        "title": "Token Usage",
+        "title": "Agent Sessions",
         "period": 60,
         "yAxis": {
           "left": {
-            "label": "Tokens",
+            "label": "Count",
+            "showUnits": false
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8,
+      "y": 12,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "bedrock-agentcore",
+            "CPUUsed-vCPUHours",
+            {
+              "stat": "Sum",
+              "label": "CPU Usage"
+            }
+          ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "CPU Resource Usage",
+        "period": 60,
+        "yAxis": {
+          "left": {
+            "label": "vCPU-Hours",
             "showUnits": false
           }
         }
@@ -196,202 +247,45 @@
     {
       "type": "metric",
       "x": 16,
-      "y": 6,
+      "y": 12,
       "width": 8,
       "height": 6,
       "properties": {
         "metrics": [
           [
-            {
-              "expression": "(m2 / m1) * 100",
-              "label": "Success Rate %",
-              "id": "e1"
-            }
-          ],
-          [
-            "AgentCore/Observability",
-            "RequestCount",
+            "bedrock-agentcore",
+            "MemoryUsed-GBHours",
             {
               "stat": "Sum",
-              "id": "m1",
-              "visible": false
-            }
-          ],
-          [
-            ".",
-            "SuccessCount",
-            {
-              "stat": "Sum",
-              "id": "m2",
-              "visible": false
+              "label": "Memory Usage"
             }
           ]
         ],
         "view": "timeSeries",
         "stacked": false,
         "region": "us-east-1",
-        "title": "Success Rate",
+        "title": "Memory Resource Usage",
         "period": 60,
         "yAxis": {
           "left": {
-            "label": "Percent",
-            "showUnits": false,
-            "min": 0,
-            "max": 100
+            "label": "GB-Hours",
+            "showUnits": false
           }
-        },
-        "annotations": {
-          "horizontal": [
-            {
-              "label": "Target SLA",
-              "value": 95,
-              "color": "#2ca02c"
-            }
-          ]
         }
       }
     },
     {
       "type": "log",
       "x": 0,
-      "y": 12,
+      "y": 18,
       "width": 24,
       "height": 6,
       "properties": {
-        "query": "SOURCE '/aws/agentcore-runtime/weather-time-agent'\n| fields @timestamp, @message\n| filter @message like /ERROR/ or @message like /tool_call/ or @message like /Response:/\n| sort @timestamp desc\n| limit 20",
+        "query": "fields @timestamp, @message, @logStream\n| filter ispresent(@message)\n| filter @message like /ERROR/ or @message like /WARN/ or @message like /Exception/\n| sort @timestamp desc\n| limit 20",
         "region": "us-east-1",
         "stacked": false,
-        "title": "Recent Traces and Errors",
+        "title": "Recent Error Logs from AgentCore",
         "view": "table"
-      }
-    },
-    {
-      "type": "metric",
-      "x": 0,
-      "y": 18,
-      "width": 12,
-      "height": 6,
-      "properties": {
-        "metrics": [
-          [
-            "AgentCore/Observability",
-            "ToolCallDuration",
-            {
-              "stat": "Average",
-              "dimensions": {
-                "ToolName": "get_weather"
-              },
-              "label": "Weather Tool Avg"
-            }
-          ],
-          [
-            "...",
-            {
-              "stat": "Average",
-              "dimensions": {
-                "ToolName": "calculate"
-              },
-              "label": "Calculator Tool Avg"
-            }
-          ],
-          [
-            "...",
-            {
-              "stat": "p99",
-              "dimensions": {
-                "ToolName": "get_weather"
-              },
-              "label": "Weather Tool P99"
-            }
-          ],
-          [
-            "...",
-            {
-              "stat": "p99",
-              "dimensions": {
-                "ToolName": "calculate"
-              },
-              "label": "Calculator Tool P99"
-            }
-          ]
-        ],
-        "view": "timeSeries",
-        "stacked": false,
-        "region": "us-east-1",
-        "title": "Tool Performance",
-        "period": 60,
-        "yAxis": {
-          "left": {
-            "label": "Milliseconds",
-            "showUnits": false
-          }
-        }
-      }
-    },
-    {
-      "type": "metric",
-      "x": 12,
-      "y": 18,
-      "width": 12,
-      "height": 6,
-      "properties": {
-        "metrics": [
-          [
-            "AgentCore/Observability",
-            "ToolCallSuccess",
-            {
-              "stat": "Sum",
-              "dimensions": {
-                "ToolName": "get_weather"
-              },
-              "label": "Weather Success"
-            }
-          ],
-          [
-            ".",
-            "ToolCallFailure",
-            {
-              "stat": "Sum",
-              "dimensions": {
-                "ToolName": "get_weather"
-              },
-              "label": "Weather Failures"
-            }
-          ],
-          [
-            ".",
-            "ToolCallSuccess",
-            {
-              "stat": "Sum",
-              "dimensions": {
-                "ToolName": "calculate"
-              },
-              "label": "Calculator Success"
-            }
-          ],
-          [
-            ".",
-            "ToolCallFailure",
-            {
-              "stat": "Sum",
-              "dimensions": {
-                "ToolName": "calculate"
-              },
-              "label": "Calculator Failures"
-            }
-          ]
-        ],
-        "view": "timeSeries",
-        "stacked": false,
-        "region": "us-east-1",
-        "title": "Tool Success/Failure Count",
-        "period": 60,
-        "yAxis": {
-          "left": {
-            "label": "Count",
-            "showUnits": false
-          }
-        }
       }
     }
   ]
