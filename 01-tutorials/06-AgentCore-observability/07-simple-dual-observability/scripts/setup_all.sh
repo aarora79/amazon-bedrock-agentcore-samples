@@ -32,7 +32,6 @@ Complete setup for AgentCore Simple Dual Observability Tutorial.
 
 This script orchestrates the complete deployment:
 1. Deploy agent to AgentCore Runtime (with optional Braintrust)
-2. Set up CloudWatch dashboard and logging
 
 Usage: $0 [OPTIONS]
 
@@ -48,7 +47,7 @@ Environment Variables:
     BRAINTRUST_PROJECT_ID           Braintrust project ID (optional)
 
 Example:
-    # Setup with CloudWatch only
+    # Setup with default settings
     ./setup_all.sh
 
     # Setup with Braintrust using environment variables
@@ -118,9 +117,8 @@ echo "========================================"
 echo "AGENTCORE OBSERVABILITY SETUP"
 echo "========================================"
 echo ""
-echo "This script will set up the complete observability demo:"
+echo "This script will set up the observability demo:"
 echo "1. Deploy agent to AgentCore Runtime"
-echo "2. Configure CloudWatch dashboard and X-Ray"
 echo ""
 echo "Region: $AWS_REGION"
 if [ "$SETUP_BRAINTRUST" = true ]; then
@@ -148,7 +146,7 @@ if [ "$SETUP_BRAINTRUST" = true ]; then
     echo "Deploying with Braintrust observability enabled..."
     DEPLOY_CMD="$DEPLOY_CMD --braintrust-api-key $BRAINTRUST_API_KEY --braintrust-project-id $BRAINTRUST_PROJECT_ID"
 else
-    echo "Deploying with CloudWatch observability only..."
+    echo "Deploying agent..."
 fi
 
 echo ""
@@ -159,24 +157,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo ""
-read -p "Agent deployed successfully. Press ENTER to continue..."
-echo ""
-
-# Step 2: Setup CloudWatch
-echo "========================================"
-echo "STEP 2: SETTING UP CLOUDWATCH"
-echo "========================================"
-echo ""
-"$SCRIPT_DIR/setup_cloudwatch.sh" --region "$AWS_REGION"
-
-if [ $? -ne 0 ]; then
-    echo "Error: CloudWatch setup failed"
-    exit 1
-fi
-
-echo ""
-read -p "CloudWatch configured successfully. Press ENTER to continue..."
 echo ""
 
 # Load deployment metadata
@@ -211,12 +191,6 @@ echo "   python simple_observability.py --scenario all"
 echo ""
 echo "3. View traces and metrics:"
 echo ""
-echo "   CloudWatch Dashboard:"
-echo "   https://console.aws.amazon.com/cloudwatch/home?region=$AWS_REGION#dashboards:name=AgentCore-Observability-Demo"
-echo ""
-echo "   X-Ray Traces:"
-echo "   https://console.aws.amazon.com/cloudwatch/home?region=$AWS_REGION#xray:traces"
-echo ""
 
 if [ "$SETUP_BRAINTRUST" = true ]; then
     echo "   Braintrust Dashboard:"
@@ -224,10 +198,6 @@ if [ "$SETUP_BRAINTRUST" = true ]; then
     echo ""
 fi
 
-echo "Documentation:"
-echo "- CloudWatch URLs: $SCRIPT_DIR/cloudwatch-urls.txt"
-echo ""
-echo "For help with individual components, run scripts with --help:"
+echo "For help, run the deployment script with --help:"
 echo "- ./deploy_agent.sh --help"
-echo "- ./setup_cloudwatch.sh --help"
 echo ""

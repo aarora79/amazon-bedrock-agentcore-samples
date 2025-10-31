@@ -4,7 +4,7 @@ Deployment and setup scripts for the Simple Dual Observability Tutorial.
 
 ## Overview
 
-These scripts automate the complete setup of Amazon Bedrock AgentCore observability with dual platform support (CloudWatch and Braintrust).
+These scripts automate the complete setup of Amazon Bedrock AgentCore observability with Braintrust support.
 
 **Note:** All commands in this documentation assume you are running from the tutorial root directory (`07-simple-dual-observability`), not from within the `scripts/` folder. Use `scripts/<script-name>.sh` to invoke the scripts.
 
@@ -37,14 +37,11 @@ Run this first before any other scripts.
 Complete end-to-end setup orchestration.
 
 ```bash
-# Setup with CloudWatch only
+# Setup with default settings
 scripts/setup_all.sh
 
-# Setup with CloudWatch and Braintrust (interactive)
-scripts/setup_all.sh --braintrust
-
-# Setup with existing Braintrust API key
-scripts/setup_all.sh --api-key bt-xxxxx
+# Setup with Braintrust integration
+scripts/setup_all.sh --api-key bt-xxxxx --project-id your-project-id
 
 # Setup in specific region
 scripts/setup_all.sh --region us-west-2
@@ -52,8 +49,7 @@ scripts/setup_all.sh --region us-west-2
 
 **What it does:**
 1. Deploys agent to AgentCore Runtime
-2. Sets up CloudWatch dashboard and X-Ray
-3. Optionally configures Braintrust integration
+2. Optionally configures Braintrust integration
 
 ### deploy_agent.sh
 
@@ -84,41 +80,6 @@ scripts/deploy_agent.sh
 - `BRAINTRUST_API_KEY` - Braintrust API key (optional)
 - `SERVICE_NAME` - Service name for OTEL traces
 
-### setup_cloudwatch.sh
-
-Configure CloudWatch Transaction Search and dashboard.
-
-```bash
-# Setup with defaults
-scripts/setup_cloudwatch.sh
-
-# Setup with custom region
-scripts/setup_cloudwatch.sh --region us-west-2
-
-# Setup with custom dashboard name
-scripts/setup_cloudwatch.sh --dashboard MyAgentCoreDashboard
-```
-
-**What it does:**
-1. Creates CloudWatch log groups
-2. Sets log retention policies
-3. Enables X-Ray tracing
-4. Creates CloudWatch dashboard with:
-   - Agent response latency (P50, P90, P99)
-   - Token consumption
-   - Error counts
-   - Recent trace events
-   - Bedrock invocations
-   - Latency by operation
-5. Generates IAM policy template
-6. Outputs dashboard URLs
-
-**Environment Variables:**
-- `AWS_REGION` - AWS region for resources
-- `DASHBOARD_NAME` - CloudWatch dashboard name
-- `LOG_GROUP_NAME` - CloudWatch log group name
-- `NAMESPACE` - CloudWatch metrics namespace
-
 ### cleanup.sh
 
 Remove all resources created by the tutorial.
@@ -136,14 +97,10 @@ scripts/cleanup.sh --keep-logs
 
 **What it does:**
 1. Deletes deployed agent from AgentCore Runtime
-2. Removes CloudWatch dashboard
-3. Deletes CloudWatch log groups (optional)
-4. Cleans up local configuration files
+2. Cleans up local configuration files
 
 **Environment Variables:**
 - `AWS_REGION` - AWS region for resources
-- `DASHBOARD_NAME` - CloudWatch dashboard name
-- `LOG_GROUP_NAME` - CloudWatch log group name
 
 ## Quick Start
 
@@ -155,7 +112,7 @@ scripts/check_prerequisites.sh
 
 Fix any issues reported before proceeding.
 
-### CloudWatch Setup (Default)
+### Basic Setup
 
 ```bash
 scripts/setup_all.sh
@@ -164,7 +121,7 @@ scripts/setup_all.sh
 python simple_observability.py --scenario all
 ```
 
-### Full Setup (CloudWatch + Braintrust)
+### Setup with Braintrust
 
 ```bash
 # With Braintrust API key from environment
@@ -185,10 +142,7 @@ python simple_observability.py --scenario all
 # 1. Deploy agent
 scripts/deploy_agent.sh
 
-# 2. Setup CloudWatch
-scripts/setup_cloudwatch.sh
-
-# 3. Run demo (automatically reads agent ID from .deployment_metadata.json)
+# 2. Run demo (automatically reads agent ID from .deployment_metadata.json)
 python simple_observability.py --scenario all
 ```
 
@@ -198,8 +152,6 @@ After running the scripts, the following files are created:
 
 - `.agent_id` - Deployed agent ID
 - `.env` - Environment configuration with API keys and region
-- `cloudwatch-urls.txt` - Direct links to CloudWatch resources
-- `xray-permissions.json` - IAM policy template for X-Ray
 - `braintrust-usage.md` - Braintrust usage guide (if configured)
 - `.env.backup` - Backup of .env (created during cleanup)
 
@@ -234,13 +186,7 @@ aws bedrock-agentcore-runtime describe-agent \
 ### View Traces
 
 ```bash
-# Load environment
-source .env
-
-# CloudWatch X-Ray
-echo "https://console.aws.amazon.com/cloudwatch/home?region=$AWS_REGION#xray:traces"
-
-# Braintrust
+# Braintrust (if configured)
 echo "https://www.braintrust.dev/app"
 ```
 
@@ -254,13 +200,6 @@ scripts/cleanup.sh
 scripts/deploy_agent.sh --model anthropic.claude-3-opus-20240229-v1:0
 ```
 
-### Test Braintrust Connection
-
-```bash
-export BRAINTRUST_API_KEY=your_api_key_here
-scripts/setup_braintrust.sh --test
-```
-
 ## Troubleshooting
 
 ### Agent Deployment Fails
@@ -270,30 +209,22 @@ Check:
 2. Region supports AgentCore Runtime: `aws bedrock-agentcore-runtime help`
 3. You have necessary IAM permissions
 
-### No Traces in CloudWatch
+### No Traces in Braintrust
 
 Check:
-1. Log group exists: `aws logs describe-log-groups --log-group-name-prefix /aws/agentcore`
-2. X-Ray is enabled: `aws xray get-sampling-rules`
-3. IAM role has X-Ray permissions (see `xray-permissions.json`)
-
-### Dashboard Shows No Data
-
-Check:
-1. Run the demo to generate traces
-2. Wait 2-5 minutes for metric aggregation
-3. Verify metric namespace matches: `AgentCore/Observability`
+1. API key is correctly configured
+2. Project ID is valid
+3. Agent has been invoked at least once
+4. Check Braintrust dashboard after a few seconds
 
 ## Support
 
 For issues specific to:
 - AgentCore: AWS Support or Bedrock documentation
-- CloudWatch/X-Ray: AWS Support
 - Braintrust: support@braintrust.dev
 
 ## Additional Resources
 
 - AgentCore Documentation: [AWS Bedrock AgentCore](https://docs.aws.amazon.com/bedrock/)
-- CloudWatch X-Ray: [AWS X-Ray Documentation](https://docs.aws.amazon.com/xray/)
 - Braintrust: [Braintrust Documentation](https://www.braintrust.dev/docs)
 - OpenTelemetry: [OTEL Documentation](https://opentelemetry.io/docs/)
