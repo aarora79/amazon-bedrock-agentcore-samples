@@ -9,7 +9,7 @@
       "properties": {
         "metrics": [
           [
-            "bedrock-agentcore",
+            "AWS/Bedrock-AgentCore",
             "Invocations",
             {
               "stat": "Sum",
@@ -47,7 +47,7 @@
       "properties": {
         "metrics": [
           [
-            "bedrock-agentcore",
+            "AWS/Bedrock-AgentCore",
             "Latency",
             {
               "stat": "p50",
@@ -107,7 +107,7 @@
       "properties": {
         "metrics": [
           [
-            "bedrock-agentcore",
+            "AWS/Bedrock-AgentCore",
             "System Errors",
             {
               "stat": "Sum",
@@ -154,7 +154,7 @@
       "properties": {
         "metrics": [
           [
-            "bedrock-agentcore",
+            "AWS/Bedrock-AgentCore",
             "Throttles",
             {
               "stat": "Sum",
@@ -193,7 +193,7 @@
       "properties": {
         "metrics": [
           [
-            "bedrock-agentcore",
+            "AWS/Bedrock-AgentCore",
             "Session Count",
             {
               "stat": "Sum",
@@ -223,7 +223,7 @@
       "properties": {
         "metrics": [
           [
-            "bedrock-agentcore",
+            "AWS/Bedrock-AgentCore",
             "CPUUsed-vCPUHours",
             {
               "stat": "Sum",
@@ -253,7 +253,7 @@
       "properties": {
         "metrics": [
           [
-            "bedrock-agentcore",
+            "AWS/Bedrock-AgentCore",
             "MemoryUsed-GBHours",
             {
               "stat": "Sum",

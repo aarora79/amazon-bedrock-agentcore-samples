@@ -38,7 +38,7 @@ exporters:
   # AWS CloudWatch Exporter
   awsemf:
     region: ${AWS_REGION}
-    namespace: bedrock-agentcore
+    namespace: AWS/Bedrock-AgentCore
     log_group_name: /aws/agentcore/traces
     log_stream_name: ${SERVICE_NAME}
     resource_to_telemetry_conversion:

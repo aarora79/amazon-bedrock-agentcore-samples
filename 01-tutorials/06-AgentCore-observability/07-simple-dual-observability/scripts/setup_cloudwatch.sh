@@ -11,7 +11,7 @@ PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 DASHBOARD_NAME="${DASHBOARD_NAME:-AgentCore-Observability-Demo}"
 LOG_GROUP_NAME="${LOG_GROUP_NAME:-/aws/agentcore/traces}"
-NAMESPACE="${NAMESPACE:-bedrock-agentcore}"
+NAMESPACE="${NAMESPACE:-AWS/Bedrock-AgentCore}"
 
 # Help text
 show_help() {
@@ -128,7 +128,7 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "bedrock-agentcore", "Invocations", { "stat": "Sum" } ]
+                    [ "AWS/Bedrock-AgentCore", "Invocations", { "stat": "Sum" } ]
                 ],
                 "period": 300,
                 "stat": "Sum",
@@ -145,7 +145,7 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "bedrock-agentcore", "Latency", { "stat": "Average" } ],
+                    [ "AWS/Bedrock-AgentCore", "Latency", { "stat": "Average" } ],
                     [ "...", { "stat": "p50" } ],
                     [ "...", { "stat": "p90" } ],
                     [ "...", { "stat": "p99" } ]
@@ -165,7 +165,7 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "bedrock-agentcore", "System Errors", { "stat": "Sum" } ],
+                    [ "AWS/Bedrock-AgentCore", "System Errors", { "stat": "Sum" } ],
                     [ ".", "User Errors", { "stat": "Sum" } ]
                 ],
                 "period": 300,
@@ -183,7 +183,7 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "bedrock-agentcore", "Throttles", { "stat": "Sum" } ]
+                    [ "AWS/Bedrock-AgentCore", "Throttles", { "stat": "Sum" } ]
                 ],
                 "period": 300,
                 "stat": "Sum",
@@ -200,7 +200,7 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "bedrock-agentcore", "Session Count", { "stat": "Average" } ]
+                    [ "AWS/Bedrock-AgentCore", "Session Count", { "stat": "Average" } ]
                 ],
                 "period": 300,
                 "stat": "Average",
@@ -217,7 +217,7 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "bedrock-agentcore", "CPUUsed-vCPUHours", { "stat": "Sum" } ]
+                    [ "AWS/Bedrock-AgentCore", "CPUUsed-vCPUHours", { "stat": "Sum" } ]
                 ],
                 "period": 300,
                 "stat": "Sum",
@@ -234,7 +234,7 @@ DASHBOARD_BODY=$(cat << 'EOF'
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "bedrock-agentcore", "MemoryUsed-GBHours", { "stat": "Sum" } ]
+                    [ "AWS/Bedrock-AgentCore", "MemoryUsed-GBHours", { "stat": "Sum" } ]
                 ],
                 "period": 300,
                 "stat": "Sum",
