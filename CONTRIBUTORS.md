@@ -11,7 +11,9 @@
 - dhawalkp
 - didhd
 - EashanKaushik
+- Fabian Rami
 - Grace Lang
+- Joshua Samuel
 - khastation
 - manchandakp
 - madhurprash
@@ -19,6 +21,7 @@
 - mttanke
 - mvangara10
 - ozhn
+- Polaris Jhandi 
 - premaiyer
 - rahullks
 - rameshv29
