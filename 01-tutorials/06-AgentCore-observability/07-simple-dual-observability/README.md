@@ -141,30 +141,65 @@ aws iam put-role-policy \
 
 See [`docs/iam-policy-deployment.json`](docs/iam-policy-deployment.json) for the complete policy.
 
-## Quickstart
+## Environment Configuration
 
-Get the agent running in 3 commands:
+This tutorial supports optional configuration via a `.env` file for easier credential management.
+
+### Setup .env File
+
+A template is provided in `.env.example` (committed to the repository):
 
 ```bash
-# 1. Install dependencies and deploy agent
-uv sync  # Install local dependencies
+# Copy the example template
+cp .env.example .env
 
-# Deploy with CloudWatch observability only (default)
-scripts/deploy_agent.sh --region us-east-1 --name weather_time_observability_agent
+# Edit .env with your values (file is in .gitignore, never committed)
+```
 
-# OR deploy with Braintrust observability (requires Braintrust account)
+**Configuration variables in .env:**
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `AWS_REGION` | No | AWS region for deployment (default: `us-east-1`) |
+| `BRAINTRUST_API_KEY` | Conditional | Braintrust API key for dual observability (optional) |
+| `BRAINTRUST_PROJECT_ID` | Conditional | Braintrust project ID for dual observability (optional) |
+| `AGENTCORE_AGENT_ID` | No | Agent ID (auto-saved to `.deployment_metadata.json` after deployment) |
+
+**Important Notes:**
+- The `.env` file is in `.gitignore` and will never be committed to the repository
+- `.env.example` is committed as a template for reference
+- Braintrust credentials are optional - omit them to use CloudWatch observability only
+- For security, never commit actual credentials to the repository
+
+## Quickstart
+
+Get the agent running in 3 steps:
+
+```bash
+# 1. Install dependencies
+uv sync
+
+# 2. Deploy agent (credentials read from .env or command-line)
+# Option A: Use .env file (recommended for repeated deployments)
+cp .env.example .env
+# Edit .env with your Braintrust credentials (optional)
+scripts/deploy_agent.sh
+
+# Option B: CloudWatch observability only (default, no credentials needed)
+scripts/deploy_agent.sh --region us-east-1
+
+# Option C: Override .env with command-line arguments
 scripts/deploy_agent.sh \
     --region us-east-1 \
-    --name weather_time_observability_agent \
     --braintrust-api-key YOUR_BRAINTRUST_API_KEY \
     --braintrust-project-id YOUR_PROJECT_ID
 
-# 2. Test the agent
+# 3. Test the agent
 scripts/tests/test_agent.sh --test calculator
 scripts/tests/test_agent.sh --test weather
 scripts/tests/test_agent.sh --prompt "What time is it in Tokyo?"
 
-# 3. Check agent logs
+# 4. Check agent logs
 scripts/check_logs.sh --time 30m
 scripts/check_logs.sh --errors  # Show only errors
 ```
