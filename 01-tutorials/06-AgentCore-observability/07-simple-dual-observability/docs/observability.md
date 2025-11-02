@@ -167,16 +167,18 @@ AgentCore Runtime automatically instruments your agent code using AWS OpenTeleme
    CMD ["opentelemetry-instrument", "python", "-m", "agent.weather_time_agent"]
    ```
 
-2. **Auto-Instrumentation**: AWS OTEL Distro automatically:
+2. **Auto-Instrumentation**: AWS OTEL Distro automatically (when enabled):
    - Wraps Python logging calls
    - Captures log context (file, function, line)
    - Adds trace correlation IDs
    - Enriches with resource attributes
-   - Exports to CloudWatch Logs
+   - Exports to CloudWatch Logs and external platforms (like Braintrust)
 
-3. **Dual Output**: Every log statement generates:
+3. **Dual Output**: When OTEL is enabled, every log statement generates:
    - Human-readable log in `runtime-logs` stream
    - Structured JSON in `otel-rt-logs` stream
+
+**OTEL Configuration**: OTEL instrumentation can be disabled via the `disable_otel` parameter during deployment. When disabled, only `runtime-logs` are generated. This tutorial keeps OTEL enabled to support dual platform export (CloudWatch + Braintrust).
 
 ### No Code Changes Required
 
@@ -195,15 +197,17 @@ logger.error("Unknown timezone: Tokyo")
 
 ## Log Streams in CloudWatch
 
-AgentCore creates two log streams in your CloudWatch log group:
+AgentCore creates log streams in your CloudWatch log group. The specific streams depend on your OTEL configuration:
 
 ### Log Group Structure
 ```
 /aws/bedrock-agentcore/runtimes/{AGENT_ID}-DEFAULT/
-├── runtime-logs/         # Plain text application logs
+├── runtime-logs/         # Plain text application logs (always created)
 │   └── {uuid}           # One stream per container instance
-└── otel-rt-logs          # Structured OTEL JSON logs
+└── otel-rt-logs          # Structured OTEL JSON logs (only when OTEL enabled)
 ```
+
+**Note**: The `otel-rt-logs` stream is only created when OpenTelemetry instrumentation is enabled. This tutorial enables OTEL to support dual platform export.
 
 ### Viewing Logs
 
@@ -308,17 +312,18 @@ fields @timestamp, body, traceId
 
 ### Dual Platform Export
 
-AgentCore Runtime automatically exports telemetry to:
+When OTEL is enabled, AgentCore Runtime automatically exports telemetry to:
 
-1. **AWS CloudWatch** (always enabled)
-   - CloudWatch Logs: Structured logs
-   - X-Ray: Distributed traces
-   - CloudWatch Metrics: Agent performance metrics
+1. **AWS CloudWatch** (always enabled when OTEL is on)
+   - CloudWatch Logs: Structured OTEL logs in `otel-rt-logs` stream
+   - Distributed traces via X-Ray (trace context exported)
+   - CloudWatch GenAI Observability: Agent monitoring interface
 
-2. **Braintrust** (optional, via OTEL Collector)
+2. **Braintrust** (optional, requires OTEL_EXPORTER_OTLP_ENDPOINT)
    - LLM-specific metrics
    - Cost tracking
    - Quality scores
+   - Custom trace visualization
 
 ### How Export Works
 
@@ -329,8 +334,8 @@ OpenTelemetry Auto-Instrumentation
     ↓
 OTEL SDK (in agent container)
     ↓
-    ├─→ AWS OTEL Distro → CloudWatch/X-Ray
-    └─→ OTEL Collector → Braintrust
+    ├─→ AWS OTEL Distro → CloudWatch Logs + X-Ray
+    └─→ OTEL Exporter → Braintrust (when configured)
 ```
 
 ### Export Configuration
