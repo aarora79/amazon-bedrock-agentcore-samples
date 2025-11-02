@@ -351,25 +351,28 @@ python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
 After setup, verify Braintrust integration:
 
 ```bash
-# 1. Test API key connectivity
-curl -X GET https://api.braintrust.dev/v1/auth/me \
-  -H "Authorization: Bearer $BRAINTRUST_API_KEY" \
-  -H "Content-Type: application/json"
-
-# Expected response: 200 OK with user details
-
-# 2. Run agent test
+# 1. Run agent test to generate traces
 uv run python scripts/tests/test_agent.py --test weather
 
-# 3. Check Braintrust dashboard
-# Navigate to https://www.braintrust.dev/app/projects/agentcore-observability-demo
-
-# 4. Verify trace appears
-# Look for trace ID in the Traces tab
-
-# 5. Review trace details
-# Verify span hierarchy and timing information are present
+# Expected: Agent executes successfully with no errors
 ```
+
+Then verify in the Braintrust dashboard:
+
+1. Navigate to https://www.braintrust.dev/app
+2. Select your project: `agentcore-observability-demo`
+3. Go to the Traces tab
+4. Look for recent traces (should appear within 1-2 minutes)
+5. Click on a trace to view:
+   - Timeline visualization of spans
+   - Input/output tokens for each span
+   - Agent execution flow
+
+If traces don't appear:
+- Verify `BRAINTRUST_API_KEY` is set correctly
+- Check that OTEL config references the correct API key
+- Review OTEL collector logs for export errors
+- Refer to the [Troubleshooting Guide](troubleshooting.md)
 
 ## Next Steps
 
