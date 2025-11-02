@@ -109,10 +109,13 @@ def _deploy_agent(
         "agent_name": agent_name
     }
 
-    # Disable AgentCore's built-in OTEL if using Braintrust
+    # Keep AgentCore's built-in OTEL enabled for dual tracing
+    # When Braintrust is configured, traces are sent to BOTH:
+    # - AgentCore's OTEL (creates otel-rt-logs in CloudWatch)
+    # - Braintrust's OTEL exporter (sends traces to Braintrust)
+    logger.info("  AgentCore OTEL instrumentation: Enabled (dual export)")
     if enable_braintrust:
-        configure_kwargs["disable_otel"] = True
-        logger.info("  Disabling AgentCore OTEL (using Braintrust)")
+        logger.info("  Traces will be exported to both AgentCore and Braintrust")
 
     configure_response = agentcore_runtime.configure(**configure_kwargs)
 
