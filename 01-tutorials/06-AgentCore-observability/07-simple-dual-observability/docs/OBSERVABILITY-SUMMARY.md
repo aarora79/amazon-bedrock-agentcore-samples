@@ -56,7 +56,6 @@ This tutorial demonstrates Amazon Bedrock AgentCore's automatic observability fe
 | Script | Purpose | Usage |
 |--------|---------|-------|
 | `check_cw_logs.sh` | CloudWatch logs viewer | `./scripts/check_cw_logs.sh [--last-hour\|--last-30-min\|--last-24h\|--follow]` |
-| `check_cw_metrics.sh` | Gateway metrics viewer | `./scripts/check_cw_metrics.sh [--metric NAME] [--stat TYPE] [--last-hour\|--last-30-min\|--last-24h]` |
 
 ### Testing
 
@@ -162,7 +161,6 @@ aws bedrock-agent describe-agent --agent-id <AGENT_ID> --region us-east-1
 ├── docs/                     # Documentation
 ├── scripts/                  # Deployment & testing scripts
 │   ├── check_cw_logs.sh     # CloudWatch logs viewer
-│   ├── check_cw_metrics.sh  # Gateway metrics viewer
 │   ├── setup_all.sh         # Full deployment
 │   └── tests/               # Test scripts
 ├── tools/                    # Agent tools
@@ -172,7 +170,8 @@ aws bedrock-agent describe-agent --agent-id <AGENT_ID> --region us-east-1
 ## Notes
 
 - The CloudWatch dashboard (previously included) has been removed as the runtime does not emit standard CloudWatch Metrics for agent invocations
-- Gateway operations (tool calls via MCP) ARE tracked in the `AWS/Bedrock-AgentCore` namespace and can be viewed with `check_cw_metrics.sh`
+- AgentCore Runtime observability focuses on CloudWatch Logs (detailed execution logs) and distributed traces via GenAI Observability/APM
+- Gateway operations (tool calls via MCP) are tracked but not critical for this tutorial's focus on agent observability
 - For comprehensive observability, use X-Ray and CloudWatch Logs
 - Braintrust provides the most detailed AI-specific metrics including LLM costs
 
