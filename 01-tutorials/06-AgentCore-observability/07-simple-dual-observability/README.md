@@ -178,20 +178,32 @@ Get the agent running in 3 steps:
 # 1. Install dependencies
 uv sync
 
-# 2. Deploy agent (credentials read from .env or command-line)
+# 2. Deploy agent (with optional Braintrust observability)
 # Option A: Use .env file (recommended for repeated deployments)
 cp .env.example .env
-# Edit .env with your Braintrust credentials (optional)
+# Edit .env - add your Braintrust credentials:
+#   BRAINTRUST_API_KEY=your-api-key
+#   BRAINTRUST_PROJECT_ID=your-project-id
+# Agent will automatically export OTEL traces to both CloudWatch and Braintrust
 scripts/deploy_agent.sh
 
-# Option B: CloudWatch observability only (default, no credentials needed)
+# Option B: CloudWatch observability only (default, no Braintrust)
 scripts/deploy_agent.sh --region us-east-1
 
-# Option C: Override .env with command-line arguments
+# Option C: Add Braintrust credentials to .env and override region via command-line
+# First, edit .env with your Braintrust credentials, then:
+scripts/deploy_agent.sh --region us-west-2  # Will use credentials from .env
+
+# Option D: Override both .env and command-line arguments
+# Add exact parameter names to .env first:
+#   BRAINTRUST_API_KEY=sk-your-actual-key
+#   BRAINTRUST_PROJECT_ID=your-actual-project-id
+# Then deploy with command-line overrides:
 scripts/deploy_agent.sh \
     --region us-east-1 \
-    --braintrust-api-key YOUR_BRAINTRUST_API_KEY \
-    --braintrust-project-id YOUR_PROJECT_ID
+    --braintrust-api-key sk-your-override-key \
+    --braintrust-project-id your-override-project-id
+# Agent will export OTEL metrics and traces to Braintrust
 
 # 3. Test the agent
 scripts/tests/test_agent.sh --test calculator
