@@ -85,7 +85,7 @@ For comprehensive information about this observability tutorial, please refer to
 | AWS Account | Active AWS account with Bedrock access enabled in your region |
 | AWS CLI | Configured with credentials. Verify: `aws sts get-caller-identity` |
 | IAM Permissions | Required permissions for AgentCore Runtime, CloudWatch, and X-Ray (see below) |
-| Braintrust Account (Optional) | Optional free tier account for AI-focused observability. Sign up at https://www.braintrust.dev/signup |
+| Braintrust Account (Optional) | Optional free tier account for AI-focused observability. Sign up at https://www.braintrust.dev/signup. See [Braintrust Setup](docs/braintrust-setup.md) for detailed configuration. |
 | Amazon Bedrock Access | Access to Claude 3.5 Haiku model in your region |
 
 ### Required IAM Permissions
@@ -266,98 +266,9 @@ scripts/cleanup.sh --force
 scripts/cleanup.sh --keep-logs
 ```
 
-For complete setup with CloudWatch dashboards and Braintrust integration, see the detailed setup below.
-
-## Use case setup
-
-### Step 1: Clone Repository and Install Dependencies
-
-```bash
-# Clone the repository
-git clone https://github.com/awslabs/amazon-bedrock-agentcore-samples
-cd amazon-bedrock-agentcore-samples/01-tutorials/06-AgentCore-observability/07-simple-dual-observability
-
-# Install deployment dependencies (required for deploying agent)
-uv sync
-
-# This installs from pyproject.toml:
-#   - bedrock-agentcore-starter-toolkit (for deployment)
-#   - boto3 (AWS SDK)
-#   - pydantic (data validation)
-#   - pytz (timezone handling)
-#   - Other dependencies
-#
-# Note: requirements.txt is for the Docker container, not local development
-```
-
-### Step 2: Get Braintrust Credentials (Optional - for Braintrust observability)
-
-If you want to use Braintrust observability integration:
-
-1. **Create a Braintrust account** at https://www.braintrust.dev/signup (free tier available)
-2. **Get your API key** from https://www.braintrust.dev/app/settings/api-keys
-3. **Get your project ID** from your Braintrust project dashboard URL:
-   - Example URL: `https://www.braintrust.dev/app/YOUR_ORG/p/YOUR_PROJECT_ID`
-   - Use `YOUR_PROJECT_ID` as the project ID
-
-You can provide these credentials:
-- Via command-line arguments: `--braintrust-api-key` and `--braintrust-project-id`
-- Via environment variables: `BRAINTRUST_API_KEY` and `BRAINTRUST_PROJECT_ID`
-
-**Note**: If you don't configure Braintrust, the agent will use CloudWatch observability only (which is always enabled by default).
-
-### Step 3: Run Automated Setup
-
-The automated setup script deploys the agent, configures CloudWatch, and sets up Braintrust integration:
-
-```bash
-# Complete setup with CloudWatch and Braintrust
-scripts/setup_all.sh --braintrust
-
-# Or setup with CloudWatch only
-scripts/setup_all.sh
-
-# Or provide Braintrust API key directly
-scripts/setup_all.sh --api-key bt-xxxxx
-```
-
-This script will:
-1. Build Docker container with your Strands agent code
-2. Push container to Amazon ECR
-3. Deploy to AgentCore Runtime with OTEL enabled
-4. Set up CloudWatch dashboard and X-Ray tracing
-5. Configure Braintrust integration (if requested)
-6. Save deployment information to `.deployment_metadata.json`
-
-### Step 4: Run the Observability Demo
-
-The demo automatically reads agent configuration from `.deployment_metadata.json`:
-
-```bash
-# Run all observability scenarios (reads agent ID automatically)
-python simple_observability.py --scenario all
-
-# Run specific scenario
-python simple_observability.py --scenario success
-python simple_observability.py --scenario error
-python simple_observability.py --scenario dashboard
-```
-
-With Braintrust integration:
-```bash
-# Set Braintrust API key if using Braintrust platform
-export BRAINTRUST_API_KEY=<your-api-key>
-python simple_observability.py --scenario all
-```
-
-Or simply test the agent:
-```bash
-scripts/tests/test_agent.sh --test weather
-```
-
-### Manual Setup (Alternative)
-
-If you prefer manual setup instead of the automated script, see detailed instructions in [docs/cloudwatch-setup.md](docs/cloudwatch-setup.md) and [docs/braintrust-setup.md](docs/braintrust-setup.md).
+For detailed configuration and setup instructions, see:
+- **[CloudWatch Setup](docs/cloudwatch-setup.md)** - CloudWatch dashboards, X-Ray tracing, and log groups configuration
+- **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard setup
 
 ## Running the tutorial
 
