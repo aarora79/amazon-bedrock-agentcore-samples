@@ -436,14 +436,14 @@ python --version  # Should be 3.11+
 env | grep -E 'AWS|BRAINTRUST'
 ```
 
-### Traces Not Appearing in CloudWatch/X-Ray
+### Traces Not Appearing in CloudWatch
 
-**Symptoms:** No traces in GenAI Observability or X-Ray console
+**Symptoms:** No traces in GenAI Observability or APM console
 
 **Quick Fixes:**
 - Wait 1-2 minutes for traces to propagate
 - Verify agent is running: check agent logs with `./scripts/check_cw_logs.sh`
-- Check IAM permissions for X-Ray and CloudWatch Logs
+- Check IAM permissions for CloudWatch and CloudWatch APM
 - Review OTEL configuration in `config/otel_config.yaml`
 
 ### Traces Not in Braintrust

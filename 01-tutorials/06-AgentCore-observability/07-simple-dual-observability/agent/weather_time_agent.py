@@ -161,7 +161,7 @@ def strands_agent_bedrock(payload: Dict[str, Any]) -> str:
     for the AgentCore Runtime. When deployed, the Runtime will automatically:
     - Add OpenTelemetry instrumentation
     - Create spans for agent execution, model calls, and tool usage
-    - Export traces to CloudWatch X-Ray (always) and Braintrust (if configured)
+    - Export traces to CloudWatch GenAI Observability (always) and Braintrust (if configured)
 
     Args:
         payload: Input payload containing the user prompt

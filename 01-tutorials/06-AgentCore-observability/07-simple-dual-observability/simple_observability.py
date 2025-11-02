@@ -13,7 +13,7 @@ Architecture:
         ↓ tool calls via MCP
     MCP Tools (weather, time, calculator)
         ↓ traces exported
-    CloudWatch X-Ray + Braintrust
+    CloudWatch (GenAI Observability or APM) + Braintrust
 
 Agent runs in AgentCore Runtime - a fully managed service for hosting agents.
 """
@@ -159,8 +159,8 @@ def _invoke_agent(
     Invoke AgentCore Runtime agent with automatic OTEL instrumentation.
 
     The agent runs in AgentCore Runtime (managed service) with automatic
-    OpenTelemetry tracing. Traces are exported to both CloudWatch X-Ray
-    and Braintrust (if configured).
+    OpenTelemetry tracing. Traces are exported to both CloudWatch (via GenAI
+    Observability or APM) and Braintrust (if configured).
 
     Args:
         client: Bedrock AgentCore client
@@ -260,13 +260,14 @@ def _print_observability_links(
         trace_id: Trace ID to look up
     """
     print("\nView: VIEW TRACES IN:")
-    print(f"\n1. CloudWatch X-Ray:")
-    print(f"   https://console.aws.amazon.com/cloudwatch/home?region={region}#xray:traces")
-    print(f"   Search for trace ID: {trace_id}")
+    print(f"\n1. CloudWatch GenAI Observability (Recommended):")
+    print(f"   https://console.aws.amazon.com/cloudwatch/home?region={region}#cloudwatch-home:")
+    print(f"   Navigate to GenAI Observability > Bedrock AgentCore")
+    print(f"   View metrics under Agents, traces under Sessions > Traces")
+    print(f"   Or use APM > Servers, select agent to monitor")
 
     print(f"\n2. Braintrust Dashboard:")
     print(f"   https://www.braintrust.dev/app")
-    print(f"   Search for trace ID: {trace_id}")
 
     print(f"\n3. CloudWatch Logs:")
     print(f"   https://console.aws.amazon.com/cloudwatch/home?region={region}#logsV2:log-groups")
@@ -315,7 +316,7 @@ def scenario_success(
     _print_result(result, "Scenario 1: Successful Multi-Tool Query")
     _print_observability_links(region, result["trace_id"])
 
-    print("✓ Expected in CloudWatch X-Ray:")
+    print("✓ Expected in CloudWatch GenAI Observability:")
     print("   - Agent invocation span")
     print("   - Tool selection span (reasoning)")
     print("   - Gateway spans: weather tool, time tool")
@@ -376,7 +377,7 @@ def scenario_error(
     _print_result(result, "Scenario 2: Error Handling")
     _print_observability_links(region, result["trace_id"])
 
-    print("✓ Expected in CloudWatch X-Ray:")
+    print("✓ Expected in CloudWatch GenAI Observability:")
     print("   - Error span highlighted in red")
     print("   - Error status code and message in attributes")
     print("   - Calculator tool span shows failure")
@@ -574,7 +575,7 @@ Examples:
         logger.info("Demo completed successfully!")
         print("\n✓ Demo Complete!")
         print("\nNext Steps:")
-        print("1. Open CloudWatch X-Ray to view traces")
+        print("1. Open CloudWatch GenAI Observability or APM to view traces")
         if braintrust_enabled:
             print("2. Open Braintrust dashboard at https://www.braintrust.dev/app")
             print("3. Compare observability data across both platforms")
