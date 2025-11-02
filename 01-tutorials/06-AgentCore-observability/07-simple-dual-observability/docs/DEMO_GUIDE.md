@@ -31,8 +31,8 @@ This guide provides a step-by-step walkthrough for presenting the dual observabi
 
 - [ ] Open CloudWatch console
   - Navigate to CloudWatch > GenAI Observability > Bedrock AgentCore
-  - View traces and metrics for deployed agent
-  - Or use X-Ray for detailed distributed tracing
+  - View metrics under "Agents"
+  - View traces under "Sessions" then "Traces"
 
 - [ ] Open Braintrust console
   - Navigate to https://www.braintrust.dev/app
