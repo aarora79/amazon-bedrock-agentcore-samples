@@ -13,8 +13,8 @@ This tutorial demonstrates Amazon Bedrock AgentCore's automatic observability fe
 
 **View logs:**
 ```bash
-./scripts/check_cw_logs.sh --last-30-min
-./scripts/check_cw_logs.sh --follow
+./scripts/check_logs.sh --time 30m
+./scripts/check_logs.sh --follow
 ```
 
 **Features:**
@@ -55,7 +55,7 @@ This tutorial demonstrates Amazon Bedrock AgentCore's automatic observability fe
 
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| `check_cw_logs.sh` | CloudWatch logs viewer | `./scripts/check_cw_logs.sh [--last-hour\|--last-30-min\|--last-24h\|--follow]` |
+| `check_logs.sh` | CloudWatch logs viewer | `./scripts/check_logs.sh [--time RANGE] [--errors] [--follow]` |
 
 ### Testing
 
@@ -98,7 +98,7 @@ uv run python scripts/tests/test_agent.py --test weather
 
 **CloudWatch Logs:**
 ```bash
-./scripts/check_cw_logs.sh --last-30-min
+./scripts/check_logs.sh --time 30m
 ```
 
 **X-Ray Traces:**
@@ -129,7 +129,7 @@ See `config/.env.example` for all options.
 ### No logs appearing
 ```bash
 # Check recent logs
-./scripts/check_cw_logs.sh --last-30-min
+./scripts/check_logs.sh --time 30m
 
 # Check log group exists
 aws logs describe-log-groups --region us-east-1 | grep weather_time
@@ -141,7 +141,7 @@ aws logs describe-log-groups --region us-east-1 | grep weather_time
 aws bedrock-agent describe-agent --agent-id <AGENT_ID> --region us-east-1
 
 # Check recent errors in logs
-./scripts/check_cw_logs.sh | grep -i error
+./scripts/check_logs.sh --errors
 ```
 
 ### Traces not appearing in X-Ray
@@ -160,7 +160,7 @@ aws bedrock-agent describe-agent --agent-id <AGENT_ID> --region us-east-1
 │   └── otel_config.yaml     # OpenTelemetry collector config
 ├── docs/                     # Documentation
 ├── scripts/                  # Deployment & testing scripts
-│   ├── check_cw_logs.sh     # CloudWatch logs viewer
+│   ├── check_logs.sh     # CloudWatch logs viewer
 │   ├── setup_all.sh         # Full deployment
 │   └── tests/               # Test scripts
 ├── tools/                    # Agent tools

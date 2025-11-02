@@ -442,7 +442,7 @@ env | grep -E 'AWS|BRAINTRUST'
 
 **Quick Fixes:**
 - Wait 1-2 minutes for traces to propagate
-- Verify agent is running: check agent logs with `./scripts/check_cw_logs.sh`
+- Verify agent is running: check agent logs with `./scripts/check_logs.sh --last-30-min`
 - Check IAM permissions for CloudWatch and CloudWatch APM
 - Review OTEL configuration in `config/otel_config.yaml`
 
