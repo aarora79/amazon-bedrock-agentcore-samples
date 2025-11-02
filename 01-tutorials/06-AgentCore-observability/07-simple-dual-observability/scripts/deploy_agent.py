@@ -303,11 +303,22 @@ Environment variables:
     parent_dir = script_dir.parent
 
     # Validate Braintrust configuration
-    enable_braintrust = bool(args.braintrust_api_key and args.braintrust_project_id)
-    if args.braintrust_api_key and not args.braintrust_project_id:
-        logger.error("Both --braintrust-api-key and --braintrust-project-id are required for Braintrust observability")
-        sys.exit(1)
-    if args.braintrust_project_id and not args.braintrust_api_key:
+    # Only consider credentials valid if they are non-empty and not placeholder values
+    braintrust_api_key_valid = (
+        args.braintrust_api_key
+        and args.braintrust_api_key.strip()
+        and "your-" not in args.braintrust_api_key.lower()
+    )
+    braintrust_project_valid = (
+        args.braintrust_project_id
+        and args.braintrust_project_id.strip()
+        and "your-" not in args.braintrust_project_id.lower()
+    )
+
+    enable_braintrust = braintrust_api_key_valid and braintrust_project_valid
+
+    # Validate that if one credential is provided, both must be provided
+    if (braintrust_api_key_valid or braintrust_project_valid) and not (braintrust_api_key_valid and braintrust_project_valid):
         logger.error("Both --braintrust-api-key and --braintrust-project-id are required for Braintrust observability")
         sys.exit(1)
 
