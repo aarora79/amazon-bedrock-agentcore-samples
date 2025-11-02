@@ -2,17 +2,9 @@
 
 ## Overview
 
-This guide provides comprehensive instructions for configuring Braintrust for the Simple Dual Observability Tutorial. Braintrust is an AI-focused observability platform that provides LLM-specific metrics, cost tracking, and quality evaluations.
+This guide provides instructions for configuring Braintrust integration for the Simple Dual Observability Tutorial. Braintrust receives OpenTelemetry traces natively and provides a dashboard for exploring agent execution data.
 
-## What is Braintrust?
-
-Braintrust is a platform designed specifically for AI and LLM observability:
-
-- **AI-First Metrics**: Token usage, cost tracking, quality scores
-- **Prompt Management**: Version control and A/B testing for prompts
-- **Evaluation Framework**: Automated quality and hallucination detection
-- **OTEL Native**: Receives OpenTelemetry traces natively
-- **Free Tier**: Generous free tier with unlimited traces (7-day retention)
+For comprehensive information about Braintrust features, visit the [Braintrust documentation](https://docs.braintrust.dev).
 
 ## Prerequisites
 
@@ -32,13 +24,6 @@ Before setting up Braintrust:
    - Google account (SSO)
    - GitHub account (SSO)
 3. Verify your email address (if using email signup)
-4. Complete onboarding questionnaire (optional)
-
-**Free Tier Includes**:
-- Unlimited traces (7-day retention)
-- Unlimited projects
-- All core features
-- Community support
 
 ### Step 2: Access Dashboard
 
@@ -163,33 +148,23 @@ service:
 
 ### Verify Configuration
 
-Test OTEL export to Braintrust:
+Test OTEL export to Braintrust by running the agent and checking the dashboard:
 
 ```bash
 # Set API key
-export BRAINTRUST_API_KEY=bt-xxxxx
+export BRAINTRUST_API_KEY=sk-xxxxx
 
-# Run automated setup (includes verification)
-cd scripts
-./setup_braintrust.sh --api-key $BRAINTRUST_API_KEY
+# Update OTEL config with your API key
+# Edit config/otel_config.yaml and ensure the BRAINTRUST_API_KEY is set
 
-# Or test manually with sample trace
-curl -X POST https://api.braintrust.dev/otel/v1/traces \
-  -H "Authorization: Bearer $BRAINTRUST_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resourceSpans": [{
-      "resource": {
-        "attributes": [
-          {"key": "service.name", "value": {"stringValue": "test"}}
-        ]
-      },
-      "scopeSpans": []
-    }]
-  }'
+# Run agent test to generate traces
+uv run python scripts/tests/test_agent.py --test weather
+
+# Check that traces appear in Braintrust dashboard
+# Navigate to https://www.braintrust.dev/app
 ```
 
-Expected response: `200 OK`
+For more information on verifying the connection, refer to the [Braintrust API documentation](https://docs.braintrust.dev/reference/api).
 
 ## Dashboard Configuration
 
@@ -290,112 +265,7 @@ View token consumption:
 - Total tokens for trace
 - Token usage over time (dashboard)
 
-### Cost Analysis View
-
-Braintrust automatically calculates costs:
-- Cost per model call
-- Cost per trace
-- Daily/weekly cost trends
-- Cost by agent or session
-
-**Cost Calculation**:
-```
-Input cost = input_tokens × input_price_per_1k
-Output cost = output_tokens × output_price_per_1k
-Total cost = input_cost + output_cost
-```
-
-For Claude 3.5 Haiku:
-- Input: $0.80 per 1M tokens
-- Output: $4.00 per 1M tokens
-
-## Evaluations
-
-### Create Evaluation
-
-Braintrust can automatically evaluate LLM responses:
-
-1. Go to Evaluations tab
-2. Click "Create Evaluation"
-3. Select evaluation type:
-   - **Factuality**: Check for hallucinations
-   - **Relevance**: Response matches query
-   - **Coherence**: Response is well-structured
-   - **Custom**: Define your own criteria
-
-4. Configure evaluation:
-   - Model: Claude 3.5 Sonnet (for evaluation)
-   - Criteria: Define what "good" means
-   - Threshold: Minimum acceptable score
-
-5. Run on existing traces or new traces
-
-### View Evaluation Results
-
-After evaluation runs:
-- Overall score (0-100)
-- Per-trace scores
-- Failure reasons
-- Improvement suggestions
-
-## Alerts and Monitoring
-
-### Set Up Alerts (Paid Feature)
-
-For production monitoring, configure alerts:
-
-1. Go to Monitoring tab
-2. Click "Create Alert"
-3. Define conditions:
-   - High error rate (>5%)
-   - High latency (P99 > 3s)
-   - High cost (>$1/hour)
-   - Low quality score (<80)
-
-4. Configure notification:
-   - Email
-   - Slack
-   - PagerDuty
-   - Webhook
-
-## Data Export
-
-### Export Traces
-
-Export traces for analysis:
-
-1. Go to Traces tab
-2. Select traces to export
-3. Click "Export"
-4. Choose format:
-   - CSV
-   - JSON
-   - Parquet
-
-### API Access
-
-Access data programmatically:
-
-```python
-import requests
-
-api_key = "bt-xxxxx"
-project_id = "agentcore-observability-demo"
-
-headers = {
-    "Authorization": f"Bearer {api_key}",
-    "Content-Type": "application/json"
-}
-
-# Get recent traces
-response = requests.get(
-    f"https://api.braintrust.dev/v1/projects/{project_id}/traces",
-    headers=headers,
-    params={"limit": 100}
-)
-
-traces = response.json()
-```
+For information about cost analysis and other Braintrust features, refer to the [Braintrust documentation](https://docs.braintrust.dev).
 
 ## Integration with Tutorial
 
@@ -432,46 +302,6 @@ python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
 # 4. View traces in Braintrust dashboard
 # https://www.braintrust.dev/app/projects/agentcore-observability-demo/traces
 ```
-
-## Comparison with CloudWatch
-
-### When to Use Braintrust
-
-**Braintrust Strengths**:
-- AI-specific metrics (quality, hallucination)
-- Automatic cost calculation
-- Better visualizations for LLM traces
-- Prompt version comparison
-- Evaluation framework
-
-**Best For**:
-- LLM quality monitoring
-- Cost optimization
-- Prompt engineering
-- AI product development
-
-### When to Use CloudWatch
-
-**CloudWatch Strengths**:
-- Native AWS integration
-- CloudWatch Alarms
-- Longer retention
-- VPC integration
-- AWS compliance requirements
-
-**Best For**:
-- Infrastructure monitoring
-- AWS-native workflows
-- Long-term storage
-- Regulatory compliance
-
-### Use Both
-
-The dual export strategy provides best of both worlds:
-- CloudWatch for infrastructure and compliance
-- Braintrust for AI-specific insights
-- Same OTEL traces in both platforms
-- No vendor lock-in
 
 ## Troubleshooting
 
@@ -516,54 +346,29 @@ The dual export strategy provides best of both worlds:
 3. Check network latency to Braintrust API
 4. Use async export mode
 
-## Cost Management
-
-### Free Tier Limits
-
-Braintrust free tier includes:
-- Unlimited traces
-- 7-day retention
-- All core features
-- Community support
-
-**No overage charges** - stays free forever.
-
-### Upgrading to Paid Tier
-
-For production needs:
-
-**Pro Tier** ($50/month):
-- 30-day retention
-- Priority support
-- Advanced evaluations
-- Team collaboration
-
-**Enterprise Tier** (custom):
-- Custom retention
-- SSO/SAML
-- Dedicated support
-- Custom SLAs
-
 ## Verification
 
 After setup, verify Braintrust integration:
 
 ```bash
-# 1. Test API key
-curl -H "Authorization: Bearer $BRAINTRUST_API_KEY" \
-  https://api.braintrust.dev/v1/auth/verify
+# 1. Test API key connectivity
+curl -X GET https://api.braintrust.dev/v1/auth/me \
+  -H "Authorization: Bearer $BRAINTRUST_API_KEY" \
+  -H "Content-Type: application/json"
 
-# 2. Run demo
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario success
+# Expected response: 200 OK with user details
+
+# 2. Run agent test
+uv run python scripts/tests/test_agent.py --test weather
 
 # 3. Check Braintrust dashboard
 # Navigate to https://www.braintrust.dev/app/projects/agentcore-observability-demo
 
 # 4. Verify trace appears
-# Look for trace ID printed by demo script
+# Look for trace ID in the Traces tab
 
-# 5. Check token and cost data
-# Verify token counts and cost calculations are present
+# 5. Review trace details
+# Verify span hierarchy and timing information are present
 ```
 
 ## Next Steps
@@ -571,7 +376,5 @@ python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario success
 After Braintrust setup:
 
 1. Run demo scenarios and explore traces
-2. Create custom evaluations for your use case
-3. Set up alerts for production monitoring (if using paid tier)
-4. Compare CloudWatch and Braintrust trace views
-5. Review [Troubleshooting Guide](troubleshooting.md) for common issues
+2. Review [Troubleshooting Guide](troubleshooting.md) for common issues
+3. Refer to [Braintrust documentation](https://docs.braintrust.dev) for advanced features and best practices
