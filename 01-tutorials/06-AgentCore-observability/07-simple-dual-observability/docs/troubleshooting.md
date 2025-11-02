@@ -4,6 +4,61 @@
 
 This guide provides solutions to common issues encountered when running the Simple Dual Observability Tutorial.
 
+## Common Misunderstandings
+
+### Agent Code Cannot Run Locally
+
+**Problem**:
+```
+ModuleNotFoundError: No module named 'strands'
+```
+
+When trying to run the agent code directly:
+```bash
+python agent/weather_time_agent.py --help  # This will NOT work
+uv run python agent/weather_time_agent.py  # This will NOT work
+```
+
+**Explanation**:
+The `agent/weather_time_agent.py` file is **not meant to run locally**. It's containerized and deployed to Amazon Bedrock AgentCore Runtime, where:
+- All dependencies (including `strands-agents`) are pre-installed in the Docker image
+- Automatic OpenTelemetry instrumentation is applied by the runtime
+- The agent handles incoming requests from AgentCore Gateway
+
+**Correct Way to Use the Agent**:
+
+**Option 1: Test the deployed agent** (recommended)
+```bash
+# Run predefined tests
+scripts/tests/test_agent.sh --test weather
+scripts/tests/test_agent.sh --test calculator
+scripts/tests/test_agent.sh --test combined
+
+# Test with custom prompt
+scripts/tests/test_agent.sh --prompt "Calculate the factorial of -5"
+
+# Interactive mode
+scripts/tests/test_agent.sh --interactive
+```
+
+**Option 2: Run the observability demo**
+```bash
+# Run all observability scenarios
+python simple_observability.py --scenario all
+
+# Or specific scenarios
+python simple_observability.py --scenario success
+python simple_observability.py --scenario error
+```
+
+**How It Works**:
+1. You deploy the agent using `scripts/deploy_agent.sh`
+2. Your test script invokes the deployed agent on AgentCore Runtime (via API)
+3. The runtime automatically instruments it with OpenTelemetry
+4. Results are collected by CloudWatch and/or Braintrust
+
+The agent code is never executed locally - only the test scripts and deployment tools run on your laptop.
+
 ## Agent Invocation Errors
 
 ### Agent Not Found Error
