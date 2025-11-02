@@ -487,21 +487,11 @@ rm -f scripts/.deployment_metadata.json
 - [Braintrust Documentation](https://www.braintrust.dev/docs)
 - [OpenTelemetry Specification](https://opentelemetry.io/docs/)
 
-### Related Tutorials
-- Tutorial 02: Self-Hosted Agent Observability
-- MCP Server Configuration Guide
-- AgentCore Gateway Deep Dive
-
-### Community
-- AWS re:Post: https://repost.aws/
-- Braintrust Discord: https://discord.gg/braintrust
-- OpenTelemetry Slack: https://slack.cncf.io/
-
 ## Next Steps
 
 After completing this tutorial, consider:
 
-1. Experiment with custom MCP tools and observe their traces
+1. Customize the built-in tools (weather, time, calculator) for your use case
 2. Configure CloudWatch Alarms for error rate monitoring
 3. Set up Braintrust evaluations for agent quality monitoring
 4. Integrate observability into your production applications
