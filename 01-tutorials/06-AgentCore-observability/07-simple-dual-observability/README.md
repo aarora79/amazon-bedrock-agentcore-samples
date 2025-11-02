@@ -278,13 +278,16 @@ git clone https://github.com/awslabs/amazon-bedrock-agentcore-samples
 cd amazon-bedrock-agentcore-samples/01-tutorials/06-AgentCore-observability/07-simple-dual-observability
 
 # Install deployment dependencies (required for deploying agent)
-pip install -r requirements.txt
+uv sync
 
-# This installs:
+# This installs from pyproject.toml:
 #   - bedrock-agentcore-starter-toolkit (for deployment)
-#   - strands-agents (agent framework)
 #   - boto3 (AWS SDK)
+#   - pydantic (data validation)
+#   - pytz (timezone handling)
 #   - Other dependencies
+#
+# Note: requirements.txt is for the Docker container, not local development
 ```
 
 ### Step 2: Get Braintrust Credentials (Optional - for Braintrust observability)
