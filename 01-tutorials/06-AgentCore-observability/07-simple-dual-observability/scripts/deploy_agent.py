@@ -358,9 +358,9 @@ Environment variables:
     logger.info(f"Region: {args.region}")
     logger.info("")
     logger.info("Next Steps:")
-    logger.info("1. Test the agent: ./test_agent.sh --test weather")
+    logger.info("1. Test the agent: ./scripts/tests/test_agent.sh --test weather")
     logger.info("2. Check logs: ./check_logs.sh --time 30m")
-    logger.info("3. Run observability demo: uv run python simple_observability.py --scenario success")
+    logger.info("3. Run observability demo: uv run python simple_observability.py --scenario all")
     logger.info("=" * 60)
 
 
