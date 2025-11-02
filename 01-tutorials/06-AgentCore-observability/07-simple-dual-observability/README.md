@@ -205,6 +205,13 @@ scripts/deploy_agent.sh \
     --braintrust-project-id your-override-project-id
 # Agent will export OTEL metrics and traces to Braintrust
 
+# Option E: Call deploy_agent.py directly (advanced)
+# Both deploy_agent.sh and deploy_agent.py support the same arguments:
+uv run python scripts/deploy_agent.py \
+    --region us-east-1 \
+    --braintrust-api-key sk-your-api-key \
+    --braintrust-project-id your-project-id
+
 # 3. Test the agent
 scripts/tests/test_agent.sh --test calculator
 scripts/tests/test_agent.sh --test weather
