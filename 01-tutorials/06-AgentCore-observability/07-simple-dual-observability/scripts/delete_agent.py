@@ -23,14 +23,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def _load_agent_id(
+def _load_deployment_metadata(
     script_dir: Path
-) -> Optional[str]:
-    """Load agent ID from local file."""
-    agent_id_file = script_dir / ".agent_id"
-    if agent_id_file.exists():
-        return agent_id_file.read_text().strip()
-    return None
+) -> dict:
+    """Load deployment metadata from .deployment_metadata.json file."""
+    import json
+
+    metadata_file = script_dir / ".deployment_metadata.json"
+    if metadata_file.exists():
+        try:
+            return json.loads(metadata_file.read_text())
+        except json.JSONDecodeError:
+            return {}
+    return {}
 
 
 def _delete_agent(
@@ -48,11 +53,13 @@ def _delete_agent(
     logger.info(f"Region: {region}")
 
     try:
-        agentcore_runtime = Runtime()
+        import boto3
 
-        # The delete() method needs the agent to be configured first
-        # We can use the agent_id directly
-        agentcore_runtime.delete(agent_id=agent_id, region=region)
+        # Delete the agent endpoint using boto3
+        client = boto3.client("bedrock-agentcore", region_name=region)
+
+        logger.info("Deleting agent runtime endpoint...")
+        client.delete_agent_runtime_endpoint(agentId=agent_id, endpointName="DEFAULT")
 
         logger.info("=" * 70)
         logger.info("AGENT DELETED SUCCESSFULLY")
@@ -75,23 +82,30 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Example usage:
-    # Delete agent (reads agent ID from .agent_id file)
-    uv run python -m scripts.delete_agent --region us-east-1
+    # Delete agent (reads from .deployment_metadata.json automatically)
+    uv run python scripts/delete_agent.py
+
+    # Delete with explicit region
+    uv run python scripts/delete_agent.py --region us-west-2
 
     # Delete specific agent ID
-    uv run python -m scripts.delete_agent --region us-east-1 --agent-id my-agent-id
+    uv run python scripts/delete_agent.py --agent-id my-agent-id --region us-east-1
+
+Environment variables:
+    AWS_REGION: AWS region (if --region not specified)
 """,
     )
 
     parser.add_argument(
         "--region",
-        required=True,
-        help="AWS region",
+        default=None,
+        help="AWS region (default: reads from .deployment_metadata.json or AWS_REGION env var)",
     )
 
     parser.add_argument(
         "--agent-id",
-        help="Agent ID to delete (if not provided, reads from .agent_id file)",
+        default=None,
+        help="Agent ID to delete (default: reads from .deployment_metadata.json)",
     )
 
     args = parser.parse_args()
@@ -99,20 +113,28 @@ Example usage:
     # Get script directory
     script_dir = Path(__file__).parent
 
+    # Load deployment metadata
+    metadata = _load_deployment_metadata(script_dir)
+
     # Get agent ID
-    agent_id = args.agent_id
+    agent_id = args.agent_id or metadata.get("agent_id")
     if not agent_id:
-        agent_id = _load_agent_id(script_dir)
-        if not agent_id:
-            logger.error("No agent ID provided and .agent_id file not found")
-            logger.error("Specify --agent-id or ensure .agent_id file exists")
-            sys.exit(1)
+        logger.error("No agent ID provided via --agent-id and .deployment_metadata.json not found")
+        logger.error("Specify --agent-id or ensure .deployment_metadata.json exists")
+        sys.exit(1)
+
+    # Get region
+    region = args.region or metadata.get("region") or __import__("os").environ.get("AWS_REGION")
+    if not region:
+        logger.error("No region specified")
+        logger.error("Specify --region, ensure .deployment_metadata.json contains 'region', or set AWS_REGION env var")
+        sys.exit(1)
 
     # Delete the agent
     try:
         _delete_agent(
             agent_id=agent_id,
-            region=args.region,
+            region=region,
         )
     except Exception as e:
         logger.error(f"Failed to delete agent: {e}")
