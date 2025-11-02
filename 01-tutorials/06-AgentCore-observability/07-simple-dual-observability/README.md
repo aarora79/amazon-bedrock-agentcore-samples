@@ -14,7 +14,7 @@ The tutorial shows how AgentCore Runtime provides zero-code observability for ag
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | Use case type       | observability, monitoring                                                                                                           |
 | Agent type          | Single agent with tools                                                                                                             |
-| Use case components | AgentCore Runtime, AgentCore Gateway, MCP tools, OTEL dual export                                                                  |
+| Use case components | AgentCore Runtime, Strands Agent, built-in tools, OTEL dual export                                                               |
 | Use case vertical   | DevOps, Platform Engineering, AI Operations                                                                                        |
 | Example complexity  | Intermediate                                                                                                                        |
 | SDK used            | Amazon Bedrock AgentCore Runtime, boto3, OpenTelemetry                                                                             |
@@ -34,21 +34,20 @@ The tutorial shows how AgentCore Runtime provides zero-code observability for ag
 │  TUTORIAL ARCHITECTURE                                          │
 │                                                                 │
 │  Your Laptop                                                    │
-│    ↓ (runs simple_observability.py)                            │
+│    ↓ (runs simple_observability.py or test_agent.sh)          │
 │  Python CLI Script (boto3 client)                              │
 │    ↓ (API call: invoke_agent)                                  │
 │  AgentCore Runtime (Managed Service)                           │
 │    ↓ (automatic OTEL instrumentation)                          │
-│  Weather/Time Agent (deployed to Runtime)                      │
-│    ↓ (tool calls routed through Gateway)                       │
-│  AgentCore Gateway (Managed Service)                           │
-│    ↓ (MCP protocol)                                            │
-│  MCP Tools (weather, time, calculator)                         │
+│  Strands Agent (deployed to Runtime)                           │
+│    ├─ Weather Tool (built-in)                                  │
+│    ├─ Time Tool (built-in)                                     │
+│    └─ Calculator Tool (built-in)                               │
 │    ↓ (traces exported automatically)                           │
 │                                                                 │
 │  ┌──────────────────┬─────────────────┐                        │
-│  │ CloudWatch X-Ray │  Braintrust     │                        │
-│  │ (AWS-native)     │  (AI platform)  │                        │
+│  │ CloudWatch Logs  │  Braintrust     │                        │
+│  │ + X-Ray Traces   │  (AI platform)  │                        │
 │  └──────────────────┴─────────────────┘                        │
 │                                                                 │
 │  Key: Zero code changes for observability                      │
@@ -60,9 +59,9 @@ The tutorial shows how AgentCore Runtime provides zero-code observability for ag
 ### Use case key Features
 
 - **Automatic OTEL Instrumentation**: AgentCore Runtime automatically generates OpenTelemetry traces with zero code changes
-- **Dual Platform Export**: Simultaneous trace export to CloudWatch X-Ray and Braintrust using vendor-neutral OTEL format
-- **Fully Managed**: AgentCore Runtime and Gateway handle all infrastructure management
-- **MCP Tool Integration**: Tools exposed via AgentCore Gateway using Model Context Protocol
+- **Dual Platform Export**: Simultaneous trace export to CloudWatch Logs/X-Ray and Braintrust using vendor-neutral OTEL format
+- **Fully Managed**: AgentCore Runtime handles all infrastructure management and automatic instrumentation
+- **Built-in Tools**: Strands agent with weather, time, and calculator tools for demonstration
 - **Comprehensive Tracing**: Captures agent invocation, model calls, tool selection, and execution spans
 - **Platform Comparison**: Demonstrates AWS-native vs AI-focused observability capabilities
 
