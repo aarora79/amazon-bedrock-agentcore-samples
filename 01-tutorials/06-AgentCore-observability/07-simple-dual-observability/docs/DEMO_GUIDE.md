@@ -30,9 +30,9 @@ This guide provides a step-by-step walkthrough for presenting the dual observabi
   ```
 
 - [ ] Open CloudWatch console
-  - Navigate to CloudWatch > Dashboards
-  - Have "AgentCore Observability" dashboard ready
-  - Or use metrics explorer with namespace: AgentCore/Observability
+  - Navigate to CloudWatch > GenAI Observability > Bedrock AgentCore
+  - View traces and metrics for deployed agent
+  - Or use X-Ray for detailed distributed tracing
 
 - [ ] Open Braintrust console
   - Navigate to https://www.braintrust.dev/app
@@ -436,15 +436,15 @@ python --version  # Should be 3.11+
 env | grep -E 'AWS|BRAINTRUST'
 ```
 
-### Metrics Not in CloudWatch
+### Traces Not Appearing in CloudWatch/X-Ray
 
-**Symptoms:** Empty dashboard widgets
+**Symptoms:** No traces in GenAI Observability or X-Ray console
 
 **Quick Fixes:**
-- Wait 1-2 minutes for metrics to propagate
-- Check IAM permissions: `cloudwatch:PutMetricData`
-- Verify namespace spelling: "AgentCore/Observability"
-- Switch to CloudWatch Metrics Explorer and search manually
+- Wait 1-2 minutes for traces to propagate
+- Verify agent is running: check agent logs with `./scripts/check_cw_logs.sh`
+- Check IAM permissions for X-Ray and CloudWatch Logs
+- Review OTEL configuration in `config/otel_config.yaml`
 
 ### Traces Not in Braintrust
 
@@ -533,7 +533,7 @@ If primary demo queries fail, use these alternatives:
 Show how to add custom metrics:
 ```python
 cloudwatch.put_metric_data(
-    Namespace='AgentCore/Observability',
+    Namespace='AWS/Bedrock-AgentCore',
     MetricData=[{
         'MetricName': 'CustomMetric',
         'Value': 123,
@@ -541,6 +541,9 @@ cloudwatch.put_metric_data(
     }]
 )
 ```
+
+Note: Custom metrics require explicit emission from your application code.
+Runtime-emitted metrics are available in the AWS/Bedrock-AgentCore namespace.
 
 ### Braintrust Metadata
 Explain custom metadata tagging:
