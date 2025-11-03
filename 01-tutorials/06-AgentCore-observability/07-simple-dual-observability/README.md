@@ -71,7 +71,7 @@ For comprehensive information about this observability tutorial, please refer to
 
 ### Observability Guides
 - **[Observability Overview](docs/observability.md)** - OTEL architecture, log types, trace correlation, and export configuration
-- **[Demo Guide](docs/demo.md)** - Visual walkthrough of three deployment options and observability platforms
+- **[Observability Options](docs/observability-options.md)** - Comparison of three deployment approaches and what each platform shows
 
 ### Setup and Configuration
 - **[System Design](docs/DESIGN.md)** - Architecture overview, component interactions, and OTEL flow diagrams

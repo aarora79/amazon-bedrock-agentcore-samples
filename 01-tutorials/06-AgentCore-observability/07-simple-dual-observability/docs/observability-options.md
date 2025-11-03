@@ -1,10 +1,12 @@
-# Observability Platforms Demo
+# Observability Options Guide
 
-This document compares three observability approaches for your AgentCore agent:
+This guide compares three observability approaches you can use when deploying your AgentCore agent:
 
-1. **CloudWatch Only** - Complete visibility into agent internals
-2. **Braintrust + CloudWatch** - External observability platform with LLM-specific insights
+1. **CloudWatch Only** - Complete visibility into agent internals, no external dependencies
+2. **Braintrust + CloudWatch** - External observability platform with LLM-specific insights and cost tracking
 3. **CloudWatch APM** - Built-in agent dashboards and performance monitoring
+
+Each option provides different capabilities. This guide explains what you can see and do with each approach to help you choose the right one for your needs.
 
 ## Option 1: CloudWatch Only (No Braintrust)
 
