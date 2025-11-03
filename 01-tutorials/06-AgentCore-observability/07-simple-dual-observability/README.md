@@ -78,8 +78,7 @@ For comprehensive information about this observability tutorial, please refer to
 - **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard configuration
 
 ### Demonstrations and Development
-- **[Demo Guide](scenarios/demo-guide.md)** - Step-by-step instructions for running observability demonstrations
-- **[Demo Presentation](docs/demo-presentation.md)** - Preparation checklist and walkthrough for presenting the tutorial
+- **[Demo Guide](scenarios/demo-guide.md)** - Step-by-step scenarios, presentation tips, and pre-demo checklist
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues, solutions, and debugging techniques
 - **[Development](docs/development.md)** - Local testing, code structure, and adding new tools
 

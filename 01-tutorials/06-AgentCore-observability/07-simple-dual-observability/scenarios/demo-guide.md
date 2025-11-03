@@ -528,3 +528,122 @@ Total demonstration time: 8-12 minutes
 - CloudWatch: 1-minute intervals
 - Braintrust: Real-time (async upload)
 - Log entries: Immediate
+
+## Presentation Preparation
+
+### Pre-Demo Checklist
+
+#### Environment Setup (30 minutes before demo)
+
+- [ ] Verify AWS credentials are configured
+  ```bash
+  aws sts get-caller-identity
+  ```
+
+- [ ] Confirm Amazon Bedrock model access
+  ```bash
+  aws bedrock list-foundation-models --region us-east-1 --query 'modelSummaries[?modelId==`us.anthropic.claude-haiku-4-5-20251001-v1:0`]'
+  ```
+
+- [ ] Check environment variables
+  ```bash
+  cat .env
+  # Verify: AWS_REGION, BRAINTRUST_API_KEY, BRAINTRUST_PROJECT_ID
+  ```
+
+- [ ] Test script execution
+  ```bash
+  uv run python simple_observability.py --scenario success
+  # Run one test query to warm up
+  ```
+
+- [ ] Open CloudWatch console
+  - Navigate to CloudWatch > GenAI Observability > Bedrock AgentCore
+  - View metrics under "Agents"
+  - View traces under "Sessions" then "Traces"
+
+- [ ] Open Braintrust console
+  - Navigate to https://www.braintrust.dev/app
+  - Open "agentcore-observability-demo" project
+  - Ensure you can see traces
+
+- [ ] Prepare browser tabs
+  - Tab 1: Terminal with demo directory
+  - Tab 2: CloudWatch dashboard
+  - Tab 3: Braintrust project view
+  - Tab 4: This demo guide (for reference)
+
+#### Content Preparation
+
+- [ ] Review all three scenarios in this guide
+- [ ] Prepare backup queries (see below)
+- [ ] Test network connectivity to all services
+- [ ] Clear previous demo data if needed (optional)
+
+### Backup Queries
+
+If primary demo queries fail, use these alternatives:
+
+#### Successful Query Backups
+1. "What's the weather in Tokyo?"
+2. "Calculate 12 squared"
+3. "What's 25 plus 17?"
+
+#### Error Query Backups
+1. "Calculate the square root of -1"
+2. "What's the weather in zzz123?" (invalid location)
+3. "Calculate 10 divided by 0"
+
+#### Multi-Tool Backups
+1. "What's the weather in London and calculate 144 divided by 12"
+2. "Calculate the square root of 256 and tell me the weather in Paris"
+
+### Presentation Tips
+
+#### Pacing
+- Allow time for systems to respond (10-15 seconds per query)
+- Don't rush through dashboard explanations
+- Pause for questions between scenarios
+- Keep total demo under 45 minutes
+
+#### Narration
+1. Explain what you're about to do before running each query
+2. Highlight key output as it appears
+3. Use both dashboards to tell complete story
+4. Point out specific metrics and their business value
+5. Leave time for questions between scenarios
+
+#### Visual Focus
+- Zoom browser if presenting to large audience
+- Use browser zoom: Cmd/Ctrl + "+"
+- Highlight important sections with cursor
+- Scroll slowly when showing long lists
+
+#### Engagement
+- Ask rhetorical questions: "Why do we care about P99 latency?"
+- Relate to audience's pain points
+- Encourage questions throughout
+- Connect features to use cases
+
+#### Recovery
+- If something fails, stay calm and use backup query
+- Turn failures into teaching moments
+- Reference error handling capabilities
+- Move to next scenario if issue persists
+
+### Demo Success Checklist
+
+- [ ] Successfully executed multi-tool query
+- [ ] Showed both CloudWatch and Braintrust traces
+- [ ] Demonstrated error handling
+- [ ] Explained key metrics and their business value
+- [ ] Connected operational and development workflows
+- [ ] Answered audience questions
+- [ ] Provided next steps and resources
+- [ ] Collected feedback
+
+### After Demo
+1. Share links to dashboards
+2. Provide sample queries for attendees to try
+3. Reference documentation for setup
+4. Collect feedback on observability needs
