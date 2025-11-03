@@ -180,5 +180,5 @@ fi
 echo "- Local configuration files"
 echo ""
 echo "To redeploy, run:"
-echo "  ./setup_all.sh"
+echo "  ./deploy_agent.sh"
 echo ""
