@@ -124,12 +124,36 @@ Metadata:
   - Success: true
 ```
 
+### Viewing CloudWatch Logs
+
+Use the `check_logs.sh` script to view agent execution logs:
+
+```bash
+# View logs from the last 30 minutes
+scripts/check_logs.sh --time 30m
+
+# Follow logs in real-time while running the demo
+scripts/check_logs.sh --follow
+
+# View logs from the last hour
+scripts/check_logs.sh --time 1h
+```
+
+**What you'll see in the logs:**
+- Agent initialization and startup messages
+- Tool call invocations with input parameters
+- Tool execution results and output
+- Timing information for each operation
+- OTEL trace export confirmations to CloudWatch and Braintrust
+- Structured logging with log levels (INFO, DEBUG, etc.)
+
 ### Key Points to Highlight
 - ✓ Both tools executed successfully
 - ✓ Traces show complete execution flow
 - ✓ CloudWatch metrics align with Braintrust spans
 - ✓ Token usage tracked accurately
 - ✓ Latency broken down by component
+- ✓ Detailed logs available via check_logs.sh for debugging
 
 ### Timing Estimate
 Total demonstration time: 3-5 minutes
@@ -232,12 +256,36 @@ Metadata:
   - Success: false
 ```
 
+### Viewing Error Logs
+
+Use the `check_logs.sh` script to view error messages:
+
+```bash
+# View only ERROR messages from the last 15 minutes
+scripts/check_logs.sh --errors
+
+# View only ERROR messages from the last hour
+scripts/check_logs.sh --time 1h --errors
+
+# View all logs from the last 30 minutes (includes errors with context)
+scripts/check_logs.sh --time 30m
+```
+
+**What you'll see in the error logs:**
+- ERROR severity level in the log output
+- Exact error message from the tool
+- Error type (ValueError, etc.)
+- Stack trace with file and line number information
+- Context around the failure (what was attempted)
+- How the agent recovered and responded to the user
+
 ### Key Points to Highlight
 - ✓ Errors captured in both systems
 - ✓ Error details preserved (type, message, stack trace)
 - ✓ Metrics differentiate success vs failure
 - ✓ Agent handles error gracefully
-- ✓ Full context available for debugging
+- ✓ Full context available for debugging via check_logs.sh
+- ✓ Easy filtering to see only errors when troubleshooting
 
 ### Timing Estimate
 Total demonstration time: 3-4 minutes

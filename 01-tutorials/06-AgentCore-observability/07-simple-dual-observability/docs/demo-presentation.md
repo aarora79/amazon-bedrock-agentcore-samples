@@ -120,6 +120,26 @@ uv run python simple_observability.py
 - Duration tracking
 - Braintrust and CloudWatch confirmation messages
 
+#### Step 2b: View Logs in Real-Time (Optional)
+If you want to show CloudWatch logs during the demo:
+
+```bash
+# In a second terminal, follow logs in real-time
+scripts/check_logs.sh --follow
+
+# After demo completes, view logs from the last 30 minutes
+scripts/check_logs.sh --time 30m
+
+# View only errors if something went wrong
+scripts/check_logs.sh --errors
+```
+
+**What to point out:**
+- Agent initialization and startup messages
+- Tool calls with input/output
+- Timing information for each operation
+- OTEL trace export confirmations
+
 #### Step 3: Review CloudWatch Metrics
 Switch to CloudWatch dashboard tab.
 
@@ -200,6 +220,26 @@ uv run python simple_observability.py
 - Error message: "Factorial is not defined for negative numbers"
 - Agent's recovery and user-friendly response
 - Error metrics sent to both systems
+
+#### Step 2b: View Error Logs (Optional)
+Show the error in CloudWatch logs:
+
+```bash
+# View logs from the last 15 minutes (default)
+scripts/check_logs.sh
+
+# Or specifically view only errors
+scripts/check_logs.sh --errors
+
+# Show errors from the last hour
+scripts/check_logs.sh --time 1h --errors
+```
+
+**What to point out:**
+- ERROR severity level in log output
+- Exact error message with stack trace
+- Tool that failed and why
+- How the agent recovered gracefully
 
 #### Step 3: Review CloudWatch Error Metrics
 Switch to CloudWatch dashboard.

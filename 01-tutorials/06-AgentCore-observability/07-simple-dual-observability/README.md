@@ -75,10 +75,11 @@ For comprehensive information about this observability tutorial, please refer to
 
 ### Setup and Configuration
 - **[System Design](docs/design.md)** - Architecture overview, component interactions, and OTEL flow diagrams
-- **[CloudWatch Setup](docs/cloudwatch-setup.md)** - CloudWatch configuration, dashboards, X-Ray tracing, and log groups
 - **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard configuration
 
-### Troubleshooting and Development
+### Demonstrations and Development
+- **[Demo Guide](scenarios/demo-guide.md)** - Step-by-step instructions for running observability demonstrations
+- **[Demo Presentation](docs/demo-presentation.md)** - Preparation checklist and walkthrough for presenting the tutorial
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues, solutions, and debugging techniques
 - **[Development](docs/development.md)** - Local testing, code structure, and adding new tools
 
@@ -235,9 +236,18 @@ scripts/tests/test_agent.sh --prompt "What time is it in Tokyo?"
 #   6. Press "Save" button
 # If you skip this step, you will NOT see traces in CloudWatch!
 
-# 5. Check agent logs
+# 5. Check CloudWatch logs to see traces
+# View logs from the last 30 minutes
 scripts/check_logs.sh --time 30m
-scripts/check_logs.sh --errors  # Show only errors
+
+# View only errors
+scripts/check_logs.sh --errors
+
+# Follow logs in real-time (useful while running tests)
+scripts/check_logs.sh --follow
+
+# View logs from the last hour
+scripts/check_logs.sh --time 1h
 ```
 
 **Available test commands:**
@@ -292,8 +302,8 @@ scripts/cleanup.sh --keep-logs
 ```
 
 For detailed configuration and setup instructions, see:
-- **[CloudWatch Setup](docs/cloudwatch-setup.md)** - CloudWatch dashboards, X-Ray tracing, and log groups configuration
 - **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard setup
+- **[System Design](docs/design.md)** - Complete architecture and OTEL trace flow details
 
 ## ⚠️ IMPORTANT: Enable Tracing After Deployment
 
@@ -392,7 +402,24 @@ python simple_observability.py
 
 ### CloudWatch X-Ray Traces
 
-After running scenarios, view traces in CloudWatch X-Ray:
+View CloudWatch logs and X-Ray traces using the check_logs.sh script and AWS Console:
+
+**Using check_logs.sh Script (Recommended for Quick Review):**
+```bash
+# View agent execution logs from the last 30 minutes
+scripts/check_logs.sh --time 30m
+
+# Follow logs in real-time while running tests
+scripts/check_logs.sh --follow
+
+# View only error messages
+scripts/check_logs.sh --errors
+
+# View logs from the last hour
+scripts/check_logs.sh --time 1h
+```
+
+**Using CloudWatch X-Ray Console (Detailed Visualization):**
 
 1. Open CloudWatch Console: https://console.aws.amazon.com/cloudwatch
 2. Navigate to X-Ray > Traces
