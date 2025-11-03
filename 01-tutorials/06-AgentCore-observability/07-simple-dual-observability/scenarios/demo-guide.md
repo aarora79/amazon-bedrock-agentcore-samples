@@ -10,6 +10,21 @@ Three demonstration scenarios show different aspects of the observability system
 - **Scenario 2**: Error handling and recovery - shows error visibility in both platforms
 - **Scenario 3**: Dashboard review - walks through CloudWatch and Braintrust dashboards
 
+### Quick Start - Run All Scenarios
+
+```bash
+# Run all three scenarios in sequence (recommended for demos)
+python simple_observability.py --scenario all
+
+# Run individual scenarios
+python simple_observability.py --scenario success    # Scenario 1
+python simple_observability.py --scenario error      # Scenario 2
+python simple_observability.py --scenario dashboard  # Scenario 3
+
+# With explicit agent ID
+python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
+```
+
 ## Scenario 1: Successful Multi-Tool Query
 
 ### Purpose
@@ -18,6 +33,16 @@ Demonstrate successful agent execution with multiple tool calls, showcasing how 
 ### Query
 ```
 What's the weather in Seattle and calculate the square root of 144?
+```
+
+### How to Run
+
+```bash
+# Run the successful query scenario
+python simple_observability.py --scenario success
+
+# Or with explicit agent ID
+python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario success
 ```
 
 ### Expected Behavior
@@ -171,6 +196,16 @@ Demonstrate how the observability system captures and tracks errors, including p
 Calculate the factorial of -5
 ```
 
+### How to Run
+
+```bash
+# Run the error handling scenario
+python simple_observability.py --scenario error
+
+# Or with explicit agent ID
+python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario error
+```
+
 ### Expected Behavior
 
 #### Agent Execution Flow
@@ -297,6 +332,26 @@ Total demonstration time: 3-4 minutes
 
 ### Purpose
 Walk through both CloudWatch and Braintrust dashboards to show comprehensive observability coverage.
+
+### How to Run
+
+For Scenario 3, you don't execute queries - you navigate and review the dashboards. However, you should have run Scenarios 1 and 2 first to generate data:
+
+```bash
+# First, run Scenario 1 to generate successful query traces
+python simple_observability.py --scenario success
+
+# Then run Scenario 2 to generate error traces
+python simple_observability.py --scenario error
+
+# Scenario 3 uses the data from the above runs
+python simple_observability.py --scenario dashboard
+
+# Or run all three scenarios in sequence
+python simple_observability.py --scenario all
+```
+
+**After running the queries**, you're ready to review the dashboards as outlined below.
 
 ### CloudWatch Dashboard Review
 
