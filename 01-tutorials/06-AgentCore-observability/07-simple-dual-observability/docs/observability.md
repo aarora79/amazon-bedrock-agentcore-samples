@@ -310,20 +310,54 @@ fields @timestamp, body, traceId
 
 ## OTEL Export to External Platforms
 
-### Dual Platform Export
+### Single Platform Export
 
-When OTEL is enabled, AgentCore Runtime automatically exports telemetry to:
+When OTEL is enabled, AgentCore Runtime exports telemetry to **one platform at a time**:
 
-1. **AWS CloudWatch** (always enabled when OTEL is on)
-   - CloudWatch Logs: Structured OTEL logs in `otel-rt-logs` stream
-   - Distributed traces via X-Ray (trace context exported)
-   - CloudWatch GenAI Observability: Agent monitoring interface
+- **If Braintrust credentials are NOT set**: Telemetry exports to **CloudWatch only**
+  - CloudWatch Logs: Structured OTEL logs in `otel-rt-logs` stream
+  - CloudWatch Traces: Full distributed traces with all spans and operations
+  - CloudWatch GenAI Observability: Agent-level metrics and invocation details
 
-2. **Braintrust** (optional, requires OTEL_EXPORTER_OTLP_ENDPOINT)
-   - LLM-specific metrics
-   - Cost tracking
-   - Quality scores
-   - Custom trace visualization
+- **If Braintrust credentials ARE set**: Telemetry exports to **Braintrust only**
+  - Braintrust receives all OTEL spans and traces via Strands telemetry initialization
+  - CloudWatch still receives runtime logs and basic metrics
+  - Traces in Braintrust show full low-level details (LLM calls, tool invocations, etc.)
+
+### Observable Differences by Platform
+
+#### CloudWatch (No Braintrust Configured)
+
+**What you see**:
+- Agent-level metrics: invocation count, success/failure rates
+- Session information: conversation history and context
+- Full traces: Complete view of all operations and timing
+- Details: See exactly what happens inside each trace (all tool calls, LLM interactions, etc.)
+
+**Best for**: Comprehensive debugging and understanding agent internals
+
+#### Braintrust (With Credentials Configured)
+
+**What you see**:
+- Agent-level metrics: Same as CloudWatch (invocation count, etc.)
+- Trace visibility: Shows that an invocation happened, but NOT the internal details
+- LLM-specific data: Cost tracking, quality scores, custom metrics
+- Low-level details: Available in Braintrust, NOT in CloudWatch
+
+**Trade-off**: Less visibility in CloudWatch, more detailed observability in Braintrust platform
+
+**Best for**: External observability platform with LLM-specific insights
+
+#### CloudWatch APM (Agent Services)
+
+**What you see**:
+- Built-in agent dashboards for monitoring
+- Agent performance metrics across time
+- Error rates and trends
+
+**Best for**: Quick operational overview of agent health
+
+See [demo.md](./demo.md) for detailed examples and screenshots of each platform's capabilities.
 
 ### How Export Works
 
@@ -334,19 +368,22 @@ OpenTelemetry Auto-Instrumentation
     ↓
 OTEL SDK (in agent container)
     ↓
-    ├─→ AWS OTEL Distro → CloudWatch Logs + X-Ray
-    └─→ OTEL Exporter → Braintrust (when configured)
+    If Braintrust credentials set:
+        └─→ OTEL Exporter → Braintrust
+    Else:
+        └─→ AWS OTEL Distro → CloudWatch Logs + Traces
+
+    (Runtime logs always go to CloudWatch)
 ```
 
 ### Export Configuration
 
-Export destinations are configured via environment variables in the agent runtime:
+The deployment script automatically configures export based on environment variables:
 
-- `OTEL_EXPORTER_OTLP_ENDPOINT`: Braintrust or custom OTEL collector
-- `OTEL_SERVICE_NAME`: Service name in telemetry data
-- `OTEL_TRACES_SAMPLER`: Sampling strategy (default: always_on)
+- **BRAINTRUST_API_KEY** and **BRAINTRUST_PROJECT_ID**: When both are set, exports to Braintrust
+- When Braintrust credentials are empty or commented out: Exports to CloudWatch
 
-These are automatically set by AgentCore Runtime - no configuration needed.
+No manual OTEL configuration needed - the deployment script handles it automatically.
 
 ## Benefits of OTEL Logs
 

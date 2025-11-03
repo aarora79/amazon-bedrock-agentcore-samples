@@ -109,13 +109,13 @@ def _deploy_agent(
         "agent_name": agent_name
     }
 
-    # Keep AgentCore's built-in OTEL enabled for dual tracing
-    # When Braintrust is configured, traces are sent to BOTH:
-    # - AgentCore's OTEL (creates otel-rt-logs in CloudWatch)
-    # - Braintrust's OTEL exporter (sends traces to Braintrust)
-    logger.info("  AgentCore OTEL instrumentation: Enabled (dual export)")
+    # Disable AgentCore's built-in OTEL if using Braintrust
+    # When Braintrust is enabled, Strands telemetry handles OTEL instrumentation
     if enable_braintrust:
-        logger.info("  Traces will be exported to both AgentCore and Braintrust")
+        configure_kwargs["disable_otel"] = True
+        logger.info("  Disabling AgentCore OTEL (using Braintrust)")
+    else:
+        logger.info("  AgentCore OTEL instrumentation: Enabled (CloudWatch only)")
 
     configure_response = agentcore_runtime.configure(**configure_kwargs)
 
@@ -138,8 +138,7 @@ def _deploy_agent(
             logger.info("Configuring Braintrust OTEL export...")
             launch_kwargs["env_vars"] = {
                 "OTEL_EXPORTER_OTLP_ENDPOINT": "https://api.braintrust.dev/otel",
-                "OTEL_EXPORTER_OTLP_HEADERS": f"Authorization=Bearer {braintrust_api_key}, x-bt-parent=project_id:{braintrust_project_id}",
-                "DISABLE_ADOT_OBSERVABILITY": "true",
+                "OTEL_EXPORTER_OTLP_HEADERS": f"authorization=Bearer {braintrust_api_key},x-bt-parent=project_id:{braintrust_project_id}",
                 "BRAINTRUST_API_KEY": braintrust_api_key,
                 "BRAINTRUST_PROJECT_ID": braintrust_project_id,
             }
@@ -317,10 +316,10 @@ Environment variables:
 
     enable_braintrust = braintrust_api_key_valid and braintrust_project_valid
 
-    # Validate that if one credential is provided, both must be provided
+    # If one credential is provided but not both, warn and disable Braintrust
     if (braintrust_api_key_valid or braintrust_project_valid) and not (braintrust_api_key_valid and braintrust_project_valid):
-        logger.error("Both --braintrust-api-key and --braintrust-project-id are required for Braintrust observability")
-        sys.exit(1)
+        logger.warning("Incomplete Braintrust credentials - disabling Braintrust observability (using CloudWatch only)")
+        enable_braintrust = False
 
     logger.info("=" * 60)
     logger.info("AGENTCORE AGENT DEPLOYMENT")

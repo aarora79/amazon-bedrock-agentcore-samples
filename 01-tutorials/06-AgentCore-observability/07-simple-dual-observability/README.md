@@ -69,9 +69,16 @@ The tutorial shows how AgentCore Runtime provides zero-code observability for ag
 
 For comprehensive information about this observability tutorial, please refer to the following detailed documentation:
 
+### Observability Guides
+- **[Observability Overview](docs/observability.md)** - OTEL architecture, log types, trace correlation, and export configuration
+- **[Demo Guide](docs/demo.md)** - Visual walkthrough of three deployment options and observability platforms
+
+### Setup and Configuration
 - **[System Design](docs/DESIGN.md)** - Architecture overview, component interactions, and OTEL flow diagrams
 - **[CloudWatch Setup](docs/cloudwatch-setup.md)** - CloudWatch configuration, dashboards, X-Ray tracing, and log groups
 - **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard configuration
+
+### Troubleshooting and Development
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues, solutions, and debugging techniques
 - **[Development](docs/development.md)** - Local testing, code structure, and adding new tools
 
@@ -217,7 +224,18 @@ scripts/tests/test_agent.sh --test calculator
 scripts/tests/test_agent.sh --test weather
 scripts/tests/test_agent.sh --prompt "What time is it in Tokyo?"
 
-# 4. Check agent logs
+# 4. Enable Tracing in CloudWatch Console (IMPORTANT)
+# ⚠️ You MUST enable tracing to see traces from your agent
+# Navigate to AWS CloudWatch Console:
+#   1. Go to Agent Runtime
+#   2. Select your agent from the list
+#   3. Scroll all the way down to "Tracing" section
+#   4. Click "Edit"
+#   5. Click "Enable Tracing"
+#   6. Press "Save" button
+# If you skip this step, you will NOT see traces in CloudWatch!
+
+# 5. Check agent logs
 scripts/check_logs.sh --time 30m
 scripts/check_logs.sh --errors  # Show only errors
 ```
@@ -276,6 +294,28 @@ scripts/cleanup.sh --keep-logs
 For detailed configuration and setup instructions, see:
 - **[CloudWatch Setup](docs/cloudwatch-setup.md)** - CloudWatch dashboards, X-Ray tracing, and log groups configuration
 - **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard setup
+
+## ⚠️ IMPORTANT: Enable Tracing After Deployment
+
+**You MUST enable tracing in CloudWatch Console to see traces from your agent.**
+
+After deploying your agent with `scripts/deploy_agent.sh`, follow these steps:
+
+1. Open AWS CloudWatch Console: https://console.aws.amazon.com/cloudwatch
+2. Navigate to **Agent Runtime** (left sidebar)
+3. **Select your agent** from the list (name will be `weather_time_observability_agent-XXXXX`)
+4. **Scroll all the way down** to the **Tracing** section
+5. Click the **Edit** button
+6. Check the box to **Enable Tracing**
+7. Press the **Save** button
+
+**⚠️ If you skip this step, you WILL NOT see any traces in CloudWatch!**
+
+Once tracing is enabled, you can:
+- View full distributed traces in CloudWatch X-Ray
+- See all spans (LLM calls, tool invocations, agent reasoning)
+- Correlate logs with traces using trace IDs
+- Export the same traces to Braintrust (if configured)
 
 ## Running the tutorial
 

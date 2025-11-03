@@ -772,6 +772,88 @@ echo "Agent ID: $AGENTCORE_AGENT_ID" >> environment.txt
 3. Verify cleanup completed successfully
 4. Document any issues encountered
 
+## Braintrust Observability Issues
+
+### OTEL Traces Not Appearing in Braintrust
+
+**Error Message in Logs**:
+```
+ERROR,Failed to export metrics to api.braintrust.dev, error code: StatusCode.PERMISSION_DENIED
+```
+
+**Note**: This error message says "metrics" but it's actually about OTEL traces/spans export.
+
+**Causes**:
+1. Invalid or expired Braintrust API key
+2. Wrong Braintrust project ID
+3. API key and project ID don't belong to same Braintrust account
+4. Braintrust API endpoint changed or is unreachable
+
+**Solutions**:
+
+**Step 1: Verify Braintrust Credentials**
+```bash
+# 1. Log into Braintrust: https://www.braintrust.dev/app
+# 2. Navigate to Settings → API Keys
+# 3. Copy your active API key (starts with 'sk-')
+# 4. Get your Project ID from your project URL:
+#    https://www.braintrust.dev/app/ORG/p/PROJECT_ID
+
+# Update .env with correct credentials
+BRAINTRUST_API_KEY=sk-your-real-api-key
+BRAINTRUST_PROJECT_ID=your-real-project-id
+```
+
+**Step 2: Test Braintrust Connectivity**
+```bash
+# Use curl to test direct OTEL connection
+curl -X POST https://api.braintrust.dev/otel \
+  -H "Authorization: Bearer sk-your-real-api-key" \
+  -H "x-bt-parent: project_id:your-real-project-id" \
+  -H "Content-Type: application/x-protobuf" \
+  -d "" -v
+```
+
+**Step 3: Redeploy Agent with Updated Credentials**
+```bash
+# Edit .env with correct Braintrust credentials
+# Then redeploy
+./scripts/deploy_agent.sh
+
+# Run a test to generate observability data
+./scripts/tests/test_agent.sh --test weather
+
+# Check logs for export errors
+./scripts/check_logs.sh --time 5m | grep -i "export\|permission"
+```
+
+**Step 4: Verify in Braintrust**
+```bash
+# 1. Go to https://www.braintrust.dev/app
+# 2. Select your project
+# 3. Look for traces from the last few minutes
+# 4. If still no traces appear, credentials are invalid
+```
+
+**If Error Persists**:
+- Confirm API key is not expired (regenerate in Settings if needed)
+- Confirm project still exists (may have been deleted)
+- Try creating new API key and project
+- Check Braintrust status page for service issues
+
+### CloudWatch Traces Appear But Braintrust Traces Don't
+
+**Scenario**: You see CloudWatch logs but nothing in Braintrust
+
+**Cause**: Braintrust credentials are invalid or endpoint is unreachable
+
+**Solution**: Follow "OTEL Traces Not Appearing in Braintrust" section above to verify and test your credentials
+
+**Note**: When Braintrust is misconfigured:
+- CloudWatch logs still appear (this always works)
+- Braintrust receives no traces (credential/network issue)
+- The agent continues to function normally
+
 ## Next Steps
 
 If issues persist after troubleshooting:

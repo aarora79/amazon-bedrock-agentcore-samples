@@ -2,7 +2,7 @@
 Strands-based agent for weather, time, and calculator queries.
 
 This agent is designed to be deployed to Amazon Bedrock AgentCore Runtime
-where it will receive automatic OpenTelemetry instrumentation.
+where it will receive OpenTelemetry instrumentation.
 
 Uses Strands framework with Amazon Bedrock models.
 
@@ -158,10 +158,13 @@ def strands_agent_bedrock(payload: Dict[str, Any]) -> str:
     Entry point for AgentCore Runtime invocation.
 
     This function is decorated with @app.entrypoint which makes it the entry point
-    for the AgentCore Runtime. When deployed, the Runtime will automatically:
-    - Add OpenTelemetry instrumentation
-    - Create spans for agent execution, model calls, and tool usage
-    - Export traces to CloudWatch GenAI Observability (always) and Braintrust (if configured)
+    for the AgentCore Runtime. When deployed, the agent initializes Strands telemetry
+    which provides OpenTelemetry instrumentation.
+
+    Telemetry Configuration:
+    - When BRAINTRUST_API_KEY env var is set: Strands telemetry is initialized to export
+      OTEL traces to Braintrust via OTEL_EXPORTER_OTLP_* environment variables
+    - When BRAINTRUST_API_KEY is not set: Agent runs with CloudWatch logs only
 
     Args:
         payload: Input payload containing the user prompt
