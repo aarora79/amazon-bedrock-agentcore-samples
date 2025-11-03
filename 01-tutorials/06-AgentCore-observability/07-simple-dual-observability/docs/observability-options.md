@@ -363,4 +363,4 @@ Use **CloudWatch APM** for:
 3. **If needed, add Braintrust** - Edit `.env` with Braintrust credentials and redeploy
 4. **Set up CloudWatch APM** - Access via AWS Console for operational monitoring
 
-See the main [observability.md](./observability.md) for technical details about how OTEL logging works.
+See [Observability Architecture](./observability-architecture.md) for technical details about how OTEL logging works.

@@ -70,7 +70,7 @@ The tutorial shows how AgentCore Runtime provides zero-code observability for ag
 For comprehensive information about this observability tutorial, please refer to the following detailed documentation:
 
 ### Observability Guides
-- **[Observability Overview](docs/observability.md)** - OTEL architecture, log types, trace correlation, and export configuration
+- **[Observability Architecture](docs/observability-architecture.md)** - OTEL architecture, log types, trace correlation, and platform design
 - **[Observability Options](docs/observability-options.md)** - Comparison of three deployment approaches and what each platform shows
 
 ### Setup and Configuration

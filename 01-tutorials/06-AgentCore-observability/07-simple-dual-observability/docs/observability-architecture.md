@@ -1,4 +1,6 @@
-# Understanding AgentCore Observability
+# Observability Architecture
+
+This guide explains how OpenTelemetry (OTEL) observability works in Amazon Bedrock AgentCore Runtime, including log types, trace correlation, and platform architecture.
 
 ## Overview
 
