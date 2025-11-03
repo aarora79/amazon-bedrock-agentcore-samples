@@ -14,15 +14,15 @@ Three demonstration scenarios show different aspects of the observability system
 
 ```bash
 # Run all three scenarios in sequence (recommended for demos)
-python simple_observability.py --scenario all
+uv run python simple_observability.py --scenario all
 
 # Run individual scenarios
-python simple_observability.py --scenario success    # Scenario 1
-python simple_observability.py --scenario error      # Scenario 2
-python simple_observability.py --scenario dashboard  # Scenario 3
+uv run python simple_observability.py --scenario success    # Scenario 1
+uv run python simple_observability.py --scenario error      # Scenario 2
+uv run python simple_observability.py --scenario dashboard  # Scenario 3
 
 # With explicit agent ID
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
 ```
 
 ## Scenario 1: Successful Multi-Tool Query
@@ -39,10 +39,10 @@ What's the weather in Seattle and calculate the square root of 144?
 
 ```bash
 # Run the successful query scenario
-python simple_observability.py --scenario success
+uv run python simple_observability.py --scenario success
 
 # Or with explicit agent ID
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario success
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario success
 ```
 
 ### Expected Behavior
@@ -111,19 +111,25 @@ Response: The weather in Seattle is currently 72 degrees and sunny. The square r
 ```
 
 #### Expected CloudWatch Metrics
-```
-Namespace: AgentCore/Observability
-Metrics:
-  - RequestCount: 1
-  - RequestLatency: 11200 ms (P50: 11200, P90: 11200, P99: 11200)
-  - ToolCallCount: 2
-  - ToolCallDuration (get_weather): 500 ms
-  - ToolCallDuration (calculate): 500 ms
-  - ToolCallSuccess: 2
-  - TokensUsed (Input): ~150
-  - TokensUsed (Output): ~50
-  - SuccessRate: 100%
-```
+
+CloudWatch receives traces and metrics from the AgentCore Runtime automatically via OpenTelemetry. Key observations:
+
+**In CloudWatch GenAI Observability/APM Console:**
+- Agent invocation count increments
+- Latency recorded: ~11-15 seconds (including all tool calls and LLM processing)
+- Tool execution times visible: weather tool ~500ms, calculator tool ~500ms
+- Span details showing successful execution of both tools
+- No errors recorded
+
+**Note on Metrics:**
+The namespace is `AWS/Bedrock-AgentCore` (configured in OTEL settings). AgentCore Runtime automatically emits:
+- Invocation counts
+- Latency measurements
+- Success/error status
+- Tool execution details
+- Span hierarchy and relationships
+
+These metrics appear in CloudWatch GenAI Observability dashboard or APM console, not as custom metrics namespace.
 
 #### Expected Braintrust Trace
 ```
@@ -200,10 +206,10 @@ Calculate the factorial of -5
 
 ```bash
 # Run the error handling scenario
-python simple_observability.py --scenario error
+uv run python simple_observability.py --scenario error
 
 # Or with explicit agent ID
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario error
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario error
 ```
 
 ### Expected Behavior
@@ -252,21 +258,25 @@ Response: I apologize, but I cannot calculate the factorial of -5. The factorial
 ```
 
 #### Expected CloudWatch Metrics
-```
-Namespace: AgentCore/Observability
-Metrics:
-  - RequestCount: 1
-  - RequestLatency: 5300 ms
-  - ToolCallCount: 1
-  - ToolCallFailure: 1
-  - ErrorCount: 1
-  - ErrorRate: 100%
-  - SuccessRate: 0%
 
-Dimensions:
-  - ErrorType: ValueError
-  - ToolName: calculate
-```
+CloudWatch receives traces showing the error scenario:
+
+**In CloudWatch GenAI Observability/APM Console:**
+- Agent invocation count increments
+- Latency recorded: ~5-8 seconds (shorter due to error)
+- Tool execution attempted: calculator tool
+- Error status visible in trace
+- Tool failed with validation error
+
+**Error Tracking:**
+The namespace is `AWS/Bedrock-AgentCore`. AgentCore Runtime records:
+- Request that resulted in error
+- Latency of the failed request
+- Tool that failed and error details
+- Status marked as failure/error
+- Error details preserved in trace attributes
+
+Error details are captured in the trace span attributes for debugging.
 
 #### Expected Braintrust Trace
 ```
@@ -339,16 +349,16 @@ For Scenario 3, you don't execute queries - you navigate and review the dashboar
 
 ```bash
 # First, run Scenario 1 to generate successful query traces
-python simple_observability.py --scenario success
+uv run python simple_observability.py --scenario success
 
 # Then run Scenario 2 to generate error traces
-python simple_observability.py --scenario error
+uv run python simple_observability.py --scenario error
 
 # Scenario 3 uses the data from the above runs
-python simple_observability.py --scenario dashboard
+uv run python simple_observability.py --scenario dashboard
 
 # Or run all three scenarios in sequence
-python simple_observability.py --scenario all
+uv run python simple_observability.py --scenario all
 ```
 
 **After running the queries**, you're ready to review the dashboards as outlined below.
