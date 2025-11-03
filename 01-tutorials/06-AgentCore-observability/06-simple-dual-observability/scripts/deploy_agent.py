@@ -64,6 +64,7 @@ def _deploy_agent(
     script_dir: Path,
     braintrust_api_key: str = None,
     braintrust_project_id: str = None,
+    auto_update_on_conflict: bool = False,
 ) -> dict:
     """
     Deploy agent to AgentCore Runtime.
@@ -76,6 +77,7 @@ def _deploy_agent(
         script_dir: Script directory for saving outputs
         braintrust_api_key: Optional Braintrust API key for observability
         braintrust_project_id: Optional Braintrust project ID
+        auto_update_on_conflict: Whether to automatically update existing agent if it already exists
 
     Returns:
         Dictionary with deployment results
@@ -130,7 +132,9 @@ def _deploy_agent(
     logger.info("  This may take several minutes...")
 
     try:
-        launch_kwargs = {}
+        launch_kwargs = {
+            "auto_update_on_conflict": auto_update_on_conflict,
+        }
 
         # Add Braintrust environment variables if enabled
         if enable_braintrust:
@@ -246,6 +250,9 @@ Example usage:
     # Deploy with custom agent name
     uv run python deploy_agent.py --name MyCustomAgent
 
+    # Update existing agent (auto-update on conflict)
+    uv run python deploy_agent.py --auto-update-on-conflict
+
 Environment variables:
     BRAINTRUST_API_KEY: Braintrust API key (alternative to --braintrust-api-key)
     BRAINTRUST_PROJECT_ID: Braintrust project ID (alternative to --braintrust-project-id)
@@ -286,6 +293,12 @@ Environment variables:
         "--braintrust-project-id",
         default=os.environ.get("BRAINTRUST_PROJECT_ID"),
         help="Braintrust project ID (optional, can use BRAINTRUST_PROJECT_ID env var)",
+    )
+
+    parser.add_argument(
+        "--auto-update-on-conflict",
+        action="store_true",
+        help="Automatically update existing agent if it already exists (default: false)",
     )
 
     args = parser.parse_args()
@@ -346,6 +359,7 @@ Environment variables:
         script_dir=script_dir,
         braintrust_api_key=args.braintrust_api_key,
         braintrust_project_id=args.braintrust_project_id,
+        auto_update_on_conflict=args.auto_update_on_conflict,
     )
 
     # Wait for agent to be ready
