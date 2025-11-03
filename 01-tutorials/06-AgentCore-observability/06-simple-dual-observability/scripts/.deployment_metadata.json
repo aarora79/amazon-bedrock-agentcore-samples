@@ -1,8 +1,0 @@
-{
-  "agent_id": "weather_time_observability_agent-dWTPGP46D4",
-  "agent_arn": "arn:aws:bedrock-agentcore:us-east-1:015469603702:runtime/weather_time_observability_agent-dWTPGP46D4",
-  "ecr_uri": "015469603702.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-weather_time_observability_agent",
-  "region": "us-east-1",
-  "agent_name": "weather_time_observability_agent",
-  "braintrust_enabled": true
-}
