@@ -82,6 +82,44 @@ For comprehensive information about this observability tutorial, please refer to
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues, solutions, and debugging techniques
 - **[Development](docs/development.md)** - Local testing, code structure, and adding new tools
 
+## Demo Videos
+
+Watch these short videos to see the tutorial in action:
+
+### 1. CloudWatch Metrics and Session Traces
+See how CloudWatch displays agent invocations, tool execution, and trace details in the GenAI Observability console.
+
+https://github.com/user-attachments/assets/63c877e8-9611-4824-9aa4-7d1ae9ed9b1d
+
+**What you'll see:**
+- Agent execution metrics (request count, latency, success rate)
+- Session traces with complete execution timeline
+- Tool calls and their individual latencies
+- Error handling and recovery
+
+### 2. CloudWatch APM (Application Performance Monitoring)
+Explore the APM console for detailed performance analysis and span visualization.
+
+https://github.com/user-attachments/assets/dfad7acc-0523-41b8-b961-f5480fc9e456
+
+**What you'll see:**
+- Service map showing agent and tool dependencies
+- Span waterfall visualization with timing breakdowns
+- Performance metrics and latency percentiles
+- Node health and error tracking
+
+### 3. Braintrust Dashboard
+Review how Braintrust captures and displays LLM-specific metrics and trace details.
+
+https://github.com/user-attachments/assets/d6ec96cb-17a7-41b8-a73d-d52a537842fa
+
+**What you'll see:**
+- Experiment list with run history and performance
+- Trace explorer with powerful filtering
+- LLM cost tracking and token usage breakdown
+- Span timeline visualization
+- Input/output analysis and quality metrics
+
 ## Prerequisites
 
 | Requirement | Description |
