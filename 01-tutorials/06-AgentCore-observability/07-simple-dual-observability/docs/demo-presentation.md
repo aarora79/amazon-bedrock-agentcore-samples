@@ -1,6 +1,8 @@
-# Demo Presentation Guide: Dual Observability with AgentCore
+# Demo Presentation Guide
 
-This guide provides a step-by-step walkthrough for presenting the dual observability tutorial, combining Amazon Bedrock AgentCore with CloudWatch and Braintrust.
+This guide provides step-by-step preparation and presentation instructions for demonstrating dual observability with Amazon Bedrock AgentCore, CloudWatch, and Braintrust.
+
+For the actual demo scenarios and walkthroughs, see [Demo Guide](../scenarios/demo-guide.md).
 
 ## Pre-Demo Checklist
 
@@ -47,7 +49,7 @@ This guide provides a step-by-step walkthrough for presenting the dual observabi
 
 ### Content Preparation
 
-- [ ] Review scenarios in `scenarios/demo_scenarios.md`
+- [ ] Review scenarios in `scenarios/demo-guide.md`
 - [ ] Prepare backup queries in case of issues
 - [ ] Test network connectivity to all services
 - [ ] Clear previous demo data if needed (optional)
