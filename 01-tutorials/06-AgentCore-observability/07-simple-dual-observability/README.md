@@ -74,7 +74,7 @@ For comprehensive information about this observability tutorial, please refer to
 - **[Observability Options](docs/observability-options.md)** - Comparison of three deployment approaches and what each platform shows
 
 ### Setup and Configuration
-- **[System Design](docs/DESIGN.md)** - Architecture overview, component interactions, and OTEL flow diagrams
+- **[System Design](docs/design.md)** - Architecture overview, component interactions, and OTEL flow diagrams
 - **[CloudWatch Setup](docs/cloudwatch-setup.md)** - CloudWatch configuration, dashboards, X-Ray tracing, and log groups
 - **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard configuration
 

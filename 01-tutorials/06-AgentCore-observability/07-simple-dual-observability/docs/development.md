@@ -39,7 +39,7 @@ This guide provides detailed information for developers who want to customize, e
 │   └── braintrust-dashboard-export.json
 │
 └── docs/
-    ├── DESIGN.md                      # Architecture documentation
+    ├── design.md                      # Architecture documentation
     ├── cloudwatch-setup.md            # CloudWatch guide
     ├── braintrust-setup.md            # Braintrust guide
     ├── troubleshooting.md             # Troubleshooting guide
@@ -775,7 +775,7 @@ When contributing improvements:
 
 After understanding development:
 
-1. Review [System Design](DESIGN.md) for architecture
+1. Review [System Design](design.md) for architecture
 2. Review [Troubleshooting](troubleshooting.md) for debugging
 3. Experiment with custom tools and scenarios
 4. Contribute improvements back to the repository

@@ -1,13 +1,14 @@
-# Demo Scenarios for Dual Observability Tutorial
+# Demo Guide: Running Observability Demonstrations
 
-This document provides detailed scenarios for demonstrating the dual observability setup with Amazon Bedrock AgentCore, CloudWatch, and Braintrust.
+This guide provides step-by-step instructions for running demonstrations of the dual observability setup with Amazon Bedrock AgentCore, CloudWatch, and Braintrust. Use this to showcase the system in action and understand how observability data flows.
 
 ## Overview
 
-Each scenario demonstrates different aspects of the observability system:
-- **Scenario 1**: Successful multi-tool query with complex reasoning
-- **Scenario 2**: Error handling and recovery patterns
-- **Scenario 3**: Dashboard review and metrics analysis
+Three demonstration scenarios show different aspects of the observability system:
+
+- **Scenario 1**: Successful multi-tool query with complex reasoning - shows normal operation
+- **Scenario 2**: Error handling and recovery - shows error visibility in both platforms
+- **Scenario 3**: Dashboard review - walks through CloudWatch and Braintrust dashboards
 
 ## Scenario 1: Successful Multi-Tool Query
 
