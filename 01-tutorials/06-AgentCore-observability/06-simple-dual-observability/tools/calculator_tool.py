@@ -2,8 +2,7 @@
 
 import logging
 import math
-from typing import Dict, Any, Optional
-
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -113,8 +112,8 @@ def _factorial(
 def calculator(
     operation: str,
     a: float,
-    b: Optional[float] = None,
-) -> Dict[str, Any]:
+    b: float | None = None,
+) -> dict[str, Any]:
     """Perform mathematical calculations.
 
     Args:
@@ -139,8 +138,7 @@ def calculator(
     if operation_normalized not in valid_operations:
         logger.error(f"Unknown operation: {operation_normalized}")
         raise ValueError(
-            f"Unknown operation: {operation}. "
-            f"Valid operations are: {', '.join(valid_operations)}"
+            f"Unknown operation: {operation}. Valid operations are: {', '.join(valid_operations)}"
         )
 
     if not isinstance(a, (int, float)):

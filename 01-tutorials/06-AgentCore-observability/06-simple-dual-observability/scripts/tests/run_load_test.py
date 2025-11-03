@@ -25,11 +25,10 @@ import time
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import boto3
 from botocore.exceptions import ClientError
-
 
 # Configure logging
 logging.basicConfig(
@@ -97,7 +96,7 @@ TEST_QUERIES = {
 }
 
 
-def _load_deployment_metadata() -> Optional[Dict[str, Any]]:
+def _load_deployment_metadata() -> dict[str, Any] | None:
     """Load agent deployment metadata from .deployment_metadata.json."""
     script_dir = Path(__file__).parent.parent
     metadata_file = script_dir / ".deployment_metadata.json"
@@ -123,11 +122,8 @@ def _generate_session_id() -> str:
 
 
 def _invoke_agent(
-    client: boto3.client,
-    agent_arn: str,
-    query: str,
-    session_id: str
-) -> Dict[str, Any]:
+    client: boto3.client, agent_arn: str, query: str, session_id: str
+) -> dict[str, Any]:
     """
     Invoke the agent with a query.
 
@@ -145,9 +141,7 @@ def _invoke_agent(
     try:
         payload = json.dumps({"prompt": query})
         response = client.invoke_agent_runtime(
-            agentRuntimeArn=agent_arn,
-            runtimeSessionId=session_id,
-            payload=payload
+            agentRuntimeArn=agent_arn, runtimeSessionId=session_id, payload=payload
         )
 
         # Handle StreamingBody response
@@ -197,7 +191,7 @@ def _invoke_agent(
         }
 
 
-def _select_query(distribution: Dict[str, int]) -> tuple[str, str]:
+def _select_query(distribution: dict[str, int]) -> tuple[str, str]:
     """
     Select a random query based on distribution weights.
 
@@ -221,8 +215,8 @@ def _run_load_test(
     agent_arn: str,
     duration_minutes: int,
     requests_per_minute: int,
-    distribution: Dict[str, int]
-) -> Dict[str, Any]:
+    distribution: dict[str, int],
+) -> dict[str, Any]:
     """
     Run load test for specified duration and rate.
 
@@ -248,7 +242,9 @@ def _run_load_test(
         "errors": [],
     }
 
-    logger.info(f"Starting load test for {duration_minutes} minutes at {requests_per_minute} req/min")
+    logger.info(
+        f"Starting load test for {duration_minutes} minutes at {requests_per_minute} req/min"
+    )
     logger.info(f"Request interval: {interval_seconds:.2f} seconds")
     logger.info(f"End time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info("")
@@ -280,12 +276,16 @@ def _run_load_test(
         else:
             stats["failed_requests"] += 1
             stats["by_type"][query_type]["errors"] += 1
-            stats["errors"].append({
-                "query": query,
-                "error": result["error"],
-                "timestamp": datetime.now().isoformat(),
-            })
-            logger.warning(f"[{request_count}] ✗ Failed ({result['elapsed_time']:.2f}s): {result['error']}")
+            stats["errors"].append(
+                {
+                    "query": query,
+                    "error": result["error"],
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+            logger.warning(
+                f"[{request_count}] ✗ Failed ({result['elapsed_time']:.2f}s): {result['error']}"
+            )
 
         if result["trace_id"]:
             logger.debug(f"[{request_count}] Trace ID: {result['trace_id']}")
@@ -299,10 +299,7 @@ def _run_load_test(
     return stats
 
 
-def _print_summary(
-    stats: Dict[str, Any],
-    duration_minutes: int
-) -> None:
+def _print_summary(stats: dict[str, Any], duration_minutes: int) -> None:
     """Print test summary statistics."""
     logger.info("")
     logger.info("=" * 80)
@@ -312,26 +309,32 @@ def _print_summary(
 
     logger.info(f"Duration: {duration_minutes} minutes")
     logger.info(f"Total Requests: {stats['total_requests']}")
-    logger.info(f"Successful: {stats['successful_requests']} ({stats['successful_requests']/stats['total_requests']*100:.1f}%)")
-    logger.info(f"Failed: {stats['failed_requests']} ({stats['failed_requests']/stats['total_requests']*100:.1f}%)")
+    logger.info(
+        f"Successful: {stats['successful_requests']} ({stats['successful_requests'] / stats['total_requests'] * 100:.1f}%)"
+    )
+    logger.info(
+        f"Failed: {stats['failed_requests']} ({stats['failed_requests'] / stats['total_requests'] * 100:.1f}%)"
+    )
 
-    if stats['total_requests'] > 0:
-        avg_latency = stats['total_elapsed_time'] / stats['total_requests']
+    if stats["total_requests"] > 0:
+        avg_latency = stats["total_elapsed_time"] / stats["total_requests"]
         logger.info(f"Average Latency: {avg_latency:.2f}s")
 
     logger.info("")
     logger.info("Requests by Type:")
-    for qtype, data in stats['by_type'].items():
-        if data['count'] > 0:
-            error_pct = (data['errors'] / data['count'] * 100) if data['count'] > 0 else 0
-            logger.info(f"  {qtype:20s}: {data['count']:3d} requests ({data['errors']:3d} errors, {error_pct:.1f}%)")
+    for qtype, data in stats["by_type"].items():
+        if data["count"] > 0:
+            error_pct = (data["errors"] / data["count"] * 100) if data["count"] > 0 else 0
+            logger.info(
+                f"  {qtype:20s}: {data['count']:3d} requests ({data['errors']:3d} errors, {error_pct:.1f}%)"
+            )
 
-    if stats['errors']:
+    if stats["errors"]:
         logger.info("")
         logger.info("Error Summary:")
         error_types = {}
-        for error in stats['errors']:
-            error_msg = error['error']
+        for error in stats["errors"]:
+            error_msg = error["error"]
             error_types[error_msg] = error_types.get(error_msg, 0) + 1
 
         for error_msg, count in sorted(error_types.items(), key=lambda x: -x[1]):
@@ -375,90 +378,71 @@ Examples:
   # High rate test with unanswerable questions
   python run_load_test.py --duration 10 --rate 10 \\
       --weather-only 25 --time-only 25 --multi-tool 25 --unanswerable 25
-"""
+""",
     )
 
     parser.add_argument(
-        "--duration",
-        type=int,
-        default=5,
-        help="Test duration in minutes (default: 5)"
+        "--duration", type=int, default=5, help="Test duration in minutes (default: 5)"
     )
 
     parser.add_argument(
-        "--rate",
-        type=int,
-        default=2,
-        help="Request rate in requests/minute (default: 2)"
+        "--rate", type=int, default=2, help="Request rate in requests/minute (default: 2)"
     )
 
     parser.add_argument(
         "--region",
         type=str,
-        help="AWS region (reads from .deployment_metadata.json if not specified)"
+        help="AWS region (reads from .deployment_metadata.json if not specified)",
     )
 
     parser.add_argument(
         "--agent-arn",
         type=str,
-        help="Agent ARN (reads from .deployment_metadata.json if not specified)"
+        help="Agent ARN (reads from .deployment_metadata.json if not specified)",
     )
 
     # Distribution weights for each query type
     parser.add_argument(
-        "--weather-only",
-        type=int,
-        default=15,
-        help="Weight for weather-only queries (default: 15)"
+        "--weather-only", type=int, default=15, help="Weight for weather-only queries (default: 15)"
     )
 
     parser.add_argument(
-        "--time-only",
-        type=int,
-        default=15,
-        help="Weight for time-only queries (default: 15)"
+        "--time-only", type=int, default=15, help="Weight for time-only queries (default: 15)"
     )
 
     parser.add_argument(
         "--calculator-only",
         type=int,
         default=10,
-        help="Weight for calculator-only queries (default: 10)"
+        help="Weight for calculator-only queries (default: 10)",
     )
 
     parser.add_argument(
         "--weather-and-time",
         type=int,
         default=25,
-        help="Weight for weather+time queries (default: 25)"
+        help="Weight for weather+time queries (default: 25)",
     )
 
     parser.add_argument(
         "--multi-tool",
         type=int,
         default=20,
-        help="Weight for multi-tool queries (3 tools) (default: 20)"
+        help="Weight for multi-tool queries (3 tools) (default: 20)",
     )
 
     parser.add_argument(
         "--error-inducing",
         type=int,
         default=10,
-        help="Weight for error-inducing queries (default: 10)"
+        help="Weight for error-inducing queries (default: 10)",
     )
 
     parser.add_argument(
-        "--unanswerable",
-        type=int,
-        default=5,
-        help="Weight for unanswerable queries (default: 5)"
+        "--unanswerable", type=int, default=5, help="Weight for unanswerable queries (default: 5)"
     )
 
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable debug logging"
-    )
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
     args = parser.parse_args()
 
@@ -531,7 +515,7 @@ Examples:
             agent_arn=agent_arn,
             duration_minutes=args.duration,
             requests_per_minute=args.rate,
-            distribution=distribution
+            distribution=distribution,
         )
 
         # Print summary

@@ -2,10 +2,9 @@
 
 import logging
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any
 
 import pytz
-
 
 # Configure logging
 logging.basicConfig(
@@ -43,7 +42,7 @@ def _validate_timezone(
 
 def get_time(
     timezone: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get current time for a timezone.
 
     Args:
@@ -82,9 +81,6 @@ def get_time(
         "iso_format": current_time.isoformat(),
     }
 
-    logger.info(
-        f"Time in {timezone_normalized}: "
-        f"{result['date']} {result['time']}"
-    )
+    logger.info(f"Time in {timezone_normalized}: {result['date']} {result['time']}")
 
     return result

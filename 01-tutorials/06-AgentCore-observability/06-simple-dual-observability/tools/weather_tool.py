@@ -2,8 +2,7 @@
 
 import logging
 import random
-from typing import Dict, Any
-
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 # Mock weather data for demonstration
-MOCK_WEATHER_DATA: Dict[str, Dict[str, Any]] = {
+MOCK_WEATHER_DATA: dict[str, dict[str, Any]] = {
     "new york": {"temperature": 72, "conditions": "Partly Cloudy", "humidity": 65},
     "london": {"temperature": 59, "conditions": "Rainy", "humidity": 80},
     "tokyo": {"temperature": 68, "conditions": "Clear", "humidity": 55},
@@ -29,7 +28,7 @@ MOCK_WEATHER_DATA: Dict[str, Dict[str, Any]] = {
 }
 
 
-def _generate_random_weather() -> Dict[str, Any]:
+def _generate_random_weather() -> dict[str, Any]:
     """Generate random weather data for unknown cities.
 
     Returns:
@@ -49,7 +48,7 @@ def _generate_random_weather() -> Dict[str, Any]:
 
 def get_weather(
     city: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get current weather information for a city.
 
     Args:
@@ -89,9 +88,6 @@ def get_weather(
         "humidity_percent": weather_data["humidity"],
     }
 
-    logger.info(
-        f"Weather for {city.title()}: "
-        f"{result['temperature_f']}°F, {result['conditions']}"
-    )
+    logger.info(f"Weather for {city.title()}: {result['temperature_f']}°F, {result['conditions']}")
 
     return result

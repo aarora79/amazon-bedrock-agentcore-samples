@@ -12,12 +12,11 @@ the agent initializes Strands telemetry to export traces to Braintrust.
 
 import logging
 import os
-from typing import Any, Dict
+from typing import Any
 
+from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from strands import Agent, tool
 from strands.models import BedrockModel
-from bedrock_agentcore.runtime import BedrockAgentCoreApp
-
 
 # Configure logging
 logging.basicConfig(
@@ -33,7 +32,7 @@ app = BedrockAgentCoreApp()
 
 
 @tool
-def get_weather(city: str) -> Dict[str, Any]:
+def get_weather(city: str) -> dict[str, Any]:
     """
     Get current weather information for a given city.
 
@@ -53,7 +52,7 @@ def get_weather(city: str) -> Dict[str, Any]:
 
 
 @tool
-def get_time(timezone: str) -> Dict[str, Any]:
+def get_time(timezone: str) -> dict[str, Any]:
     """
     Get current time for a given city or timezone.
 
@@ -73,11 +72,7 @@ def get_time(timezone: str) -> Dict[str, Any]:
 
 
 @tool
-def calculator(
-    operation: str,
-    a: float,
-    b: float = None
-) -> Dict[str, Any]:
+def calculator(operation: str, a: float, b: float = None) -> dict[str, Any]:
     """
     Perform mathematical calculations.
 
@@ -144,7 +139,7 @@ def _initialize_agent() -> Agent:
             "- For time: Use timezone format like 'America/New_York' or city names\n"
             "- For calculator: Use operations like 'add', 'subtract', 'multiply', 'divide', or 'factorial'\n"
             "Be friendly and helpful in your responses."
-        )
+        ),
     )
 
     logger.info("Agent initialized with tools: get_weather, get_time, calculator")
@@ -153,7 +148,7 @@ def _initialize_agent() -> Agent:
 
 
 @app.entrypoint
-def strands_agent_bedrock(payload: Dict[str, Any]) -> str:
+def strands_agent_bedrock(payload: dict[str, Any]) -> str:
     """
     Entry point for AgentCore Runtime invocation.
 
@@ -183,7 +178,7 @@ def strands_agent_bedrock(payload: Dict[str, Any]) -> str:
     response = agent(user_input)
 
     # Extract response text
-    response_text = response.message['content'][0]['text']
+    response_text = response.message["content"][0]["text"]
 
     logger.info("Agent invocation completed successfully")
     logger.debug(f"Response: {response_text}")

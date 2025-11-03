@@ -9,10 +9,6 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
-
-from bedrock_agentcore_starter_toolkit import Runtime
-
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -23,9 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def _load_deployment_metadata(
-    script_dir: Path
-) -> dict:
+def _load_deployment_metadata(script_dir: Path) -> dict:
     """Load deployment metadata from .deployment_metadata.json file."""
     import json
 
@@ -38,10 +32,7 @@ def _load_deployment_metadata(
     return {}
 
 
-def _delete_agent(
-    agent_id: str,
-    region: str
-) -> None:
+def _delete_agent(agent_id: str, region: str) -> None:
     """
     Delete the agent from AgentCore Runtime.
 
@@ -127,7 +118,9 @@ Environment variables:
     region = args.region or metadata.get("region") or __import__("os").environ.get("AWS_REGION")
     if not region:
         logger.error("No region specified")
-        logger.error("Specify --region, ensure .deployment_metadata.json contains 'region', or set AWS_REGION env var")
+        logger.error(
+            "Specify --region, ensure .deployment_metadata.json contains 'region', or set AWS_REGION env var"
+        )
         sys.exit(1)
 
     # Delete the agent

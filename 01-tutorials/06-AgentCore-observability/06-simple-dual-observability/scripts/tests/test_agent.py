@@ -10,11 +10,10 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import boto3
 from botocore.exceptions import ClientError
-
 
 # Configure logging with basicConfig
 logging.basicConfig(
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 # Test prompts for different tools
-TEST_PROMPTS: Dict[str, str] = {
+TEST_PROMPTS: dict[str, str] = {
     "weather": "What's the weather like in Seattle?",
     "time": "What time is it in Tokyo?",
     "calculator": "What is 25 times 8?",
@@ -34,9 +33,7 @@ TEST_PROMPTS: Dict[str, str] = {
 }
 
 
-def _load_agent_metadata(
-    script_dir: Path
-) -> Dict[str, Any]:
+def _load_agent_metadata(script_dir: Path) -> dict[str, Any]:
     """Load agent metadata from deployment metadata file."""
     metadata_file = script_dir / ".deployment_metadata.json"
 
@@ -45,17 +42,13 @@ def _load_agent_metadata(
             return json.load(f)
     else:
         raise FileNotFoundError(
-            "No deployment metadata found. "
-            "Deploy the agent first with: ./deploy_agent.sh"
+            "No deployment metadata found. Deploy the agent first with: ./deploy_agent.sh"
         )
 
 
 def _invoke_agent(
-    agent_arn: str,
-    prompt: str,
-    region: str,
-    session_id: Optional[str] = None
-) -> Dict[str, Any]:
+    agent_arn: str, prompt: str, region: str, session_id: str | None = None
+) -> dict[str, Any]:
     """
     Invoke the agent with a prompt.
 
@@ -81,9 +74,7 @@ def _invoke_agent(
         payload = json.dumps({"prompt": prompt})
 
         response = client.invoke_agent_runtime(
-            agentRuntimeArn=agent_arn,
-            runtimeSessionId=session_id,
-            payload=payload
+            agentRuntimeArn=agent_arn, runtimeSessionId=session_id, payload=payload
         )
 
         # Parse response - handle StreamingBody
@@ -101,11 +92,7 @@ def _invoke_agent(
             elif isinstance(response_body, str):
                 agent_response = response_body
 
-        return {
-            "response": agent_response,
-            "session_id": session_id,
-            "raw_response": response
-        }
+        return {"response": agent_response, "session_id": session_id, "raw_response": response}
 
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
@@ -118,17 +105,14 @@ def _invoke_agent(
             ) from e
         elif error_code == "AccessDeniedException":
             raise RuntimeError(
-                f"Access denied when invoking agent.\n"
-                f"Make sure your IAM role has bedrock-agentcore:InvokeAgentRuntime permission."
+                "Access denied when invoking agent.\n"
+                "Make sure your IAM role has bedrock-agentcore:InvokeAgentRuntime permission."
             ) from e
         else:
             raise RuntimeError(f"Failed to invoke agent: {error_msg}") from e
 
 
-def _display_response(
-    response: Dict[str, Any],
-    show_full: bool = False
-) -> None:
+def _display_response(response: dict[str, Any], show_full: bool = False) -> None:
     """Display the agent response."""
     logger.info("=" * 70)
     logger.info("AGENT RESPONSE")
@@ -152,10 +136,7 @@ def _display_response(
     logger.info("=" * 70)
 
 
-def _run_interactive_mode(
-    agent_arn: str,
-    region: str
-) -> None:
+def _run_interactive_mode(agent_arn: str, region: str) -> None:
     """Run interactive testing mode."""
     logger.info("=" * 70)
     logger.info("INTERACTIVE MODE")

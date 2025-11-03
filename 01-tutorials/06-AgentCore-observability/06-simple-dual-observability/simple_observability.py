@@ -26,11 +26,10 @@ import sys
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import boto3
 from botocore.exceptions import ClientError
-
 
 # Configure logging
 logging.basicConfig(
@@ -46,11 +45,7 @@ DEFAULT_REGION: str = "us-east-1"
 DEFAULT_TIMEOUT: int = 300
 
 
-def _get_env_var(
-    var_name: str,
-    default: Optional[str] = None,
-    required: bool = False
-) -> Optional[str]:
+def _get_env_var(var_name: str, default: str | None = None, required: bool = False) -> str | None:
     """
     Get environment variable with optional default and required check.
 
@@ -76,7 +71,7 @@ def _get_env_var(
     return value
 
 
-def _load_deployment_metadata() -> Optional[Dict[str, Any]]:
+def _load_deployment_metadata() -> dict[str, Any] | None:
     """
     Load agent deployment metadata from .deployment_metadata.json.
 
@@ -95,7 +90,7 @@ def _load_deployment_metadata() -> Optional[Dict[str, Any]]:
     return None
 
 
-def _is_braintrust_enabled(metadata: Optional[Dict[str, Any]]) -> bool:
+def _is_braintrust_enabled(metadata: dict[str, Any] | None) -> bool:
     """
     Check if Braintrust observability is enabled for the deployed agent.
 
@@ -122,10 +117,7 @@ def _create_bedrock_client(region: str) -> boto3.client:
         Configured boto3 client
     """
     try:
-        client = boto3.client(
-            "bedrock-agentcore",
-            region_name=region
-        )
+        client = boto3.client("bedrock-agentcore", region_name=region)
         logger.info(f"Created Bedrock AgentCore client for region: {region}")
         return client
 
@@ -149,12 +141,8 @@ def _generate_session_id() -> str:
 
 
 def _invoke_agent(
-    client: boto3.client,
-    agent_arn: str,
-    query: str,
-    session_id: str,
-    enable_trace: bool = True
-) -> Dict[str, Any]:
+    client: boto3.client, agent_arn: str, query: str, session_id: str, enable_trace: bool = True
+) -> dict[str, Any]:
     """
     Invoke AgentCore Runtime agent with automatic OTEL instrumentation.
 
@@ -186,9 +174,7 @@ def _invoke_agent(
         payload = json.dumps({"prompt": query})
 
         response = client.invoke_agent_runtime(
-            agentRuntimeArn=agent_arn,
-            runtimeSessionId=session_id,
-            payload=payload
+            agentRuntimeArn=agent_arn, runtimeSessionId=session_id, payload=payload
         )
 
         elapsed_time = time.time() - start_time
@@ -212,7 +198,7 @@ def _invoke_agent(
             "output": agent_response or "",
             "trace_id": response.get("traceId", ""),
             "session_id": session_id,
-            "elapsed_time": elapsed_time
+            "elapsed_time": elapsed_time,
         }
 
     except ClientError as e:
@@ -227,10 +213,7 @@ def _invoke_agent(
         raise
 
 
-def _print_result(
-    result: Dict[str, Any],
-    scenario_name: str
-) -> None:
+def _print_result(result: dict[str, Any], scenario_name: str) -> None:
     """
     Print agent invocation result in formatted output.
 
@@ -248,10 +231,7 @@ def _print_result(
     print("\n" + "=" * 80 + "\n")
 
 
-def _print_observability_links(
-    region: str,
-    trace_id: str
-) -> None:
+def _print_observability_links(region: str, trace_id: str) -> None:
     """
     Print links to observability platforms for trace inspection.
 
@@ -260,25 +240,22 @@ def _print_observability_links(
         trace_id: Trace ID to look up
     """
     print("\nView: VIEW TRACES IN:")
-    print(f"\n1. CloudWatch GenAI Observability (Recommended):")
+    print("\n1. CloudWatch GenAI Observability (Recommended):")
     print(f"   https://console.aws.amazon.com/cloudwatch/home?region={region}#cloudwatch-home:")
-    print(f"   Navigate to GenAI Observability > Bedrock AgentCore")
-    print(f"   View metrics under Agents, traces under Sessions > Traces")
-    print(f"   Or use APM > Servers, select agent to monitor")
+    print("   Navigate to GenAI Observability > Bedrock AgentCore")
+    print("   View metrics under Agents, traces under Sessions > Traces")
+    print("   Or use APM > Servers, select agent to monitor")
 
-    print(f"\n2. Braintrust Dashboard:")
-    print(f"   https://www.braintrust.dev/app")
+    print("\n2. Braintrust Dashboard:")
+    print("   https://www.braintrust.dev/app")
 
-    print(f"\n3. CloudWatch Logs:")
+    print("\n3. CloudWatch Logs:")
     print(f"   https://console.aws.amazon.com/cloudwatch/home?region={region}#logsV2:log-groups")
-    print(f"   Filter by session ID or trace ID\n")
+    print("   Filter by session ID or trace ID\n")
 
 
 def scenario_success(
-    client: boto3.client,
-    agent_arn: str,
-    region: str,
-    braintrust_enabled: bool = False
+    client: boto3.client, agent_arn: str, region: str, braintrust_enabled: bool = False
 ) -> None:
     """
     Scenario 1: Successful multi-tool query.
@@ -306,12 +283,7 @@ def scenario_success(
     session_id = _generate_session_id()
     query = "What's the weather in Seattle and what time is it there?"
 
-    result = _invoke_agent(
-        client=client,
-        agent_arn=agent_arn,
-        query=query,
-        session_id=session_id
-    )
+    result = _invoke_agent(client=client, agent_arn=agent_arn, query=query, session_id=session_id)
 
     _print_result(result, "Scenario 1: Successful Multi-Tool Query")
     _print_observability_links(region, result["trace_id"])
@@ -336,10 +308,7 @@ def scenario_success(
 
 
 def scenario_error(
-    client: boto3.client,
-    agent_arn: str,
-    region: str,
-    braintrust_enabled: bool = False
+    client: boto3.client, agent_arn: str, region: str, braintrust_enabled: bool = False
 ) -> None:
     """
     Scenario 2: Error handling demonstration.
@@ -367,12 +336,7 @@ def scenario_error(
     session_id = _generate_session_id()
     query = "Calculate the factorial of -5"
 
-    result = _invoke_agent(
-        client=client,
-        agent_arn=agent_arn,
-        query=query,
-        session_id=session_id
-    )
+    result = _invoke_agent(client=client, agent_arn=agent_arn, query=query, session_id=session_id)
 
     _print_result(result, "Scenario 2: Error Handling")
     _print_observability_links(region, result["trace_id"])
@@ -396,10 +360,7 @@ def scenario_error(
         print("   - See README.md for setup instructions")
 
 
-def scenario_dashboard(
-    region: str,
-    braintrust_enabled: bool = False
-) -> None:
+def scenario_dashboard(region: str, braintrust_enabled: bool = False) -> None:
     """
     Scenario 3: Dashboard walkthrough.
 
@@ -441,7 +402,9 @@ def scenario_dashboard(
         print("\n   To enable Braintrust observability:")
         print("   1. Get Braintrust API key from: https://www.braintrust.dev/app/settings/api-keys")
         print("   2. Get project ID from your Braintrust project URL")
-        print("   3. Redeploy agent with: scripts/deploy_agent.sh --braintrust-api-key KEY --braintrust-project-id ID")
+        print(
+            "   3. Redeploy agent with: scripts/deploy_agent.sh --braintrust-api-key KEY --braintrust-project-id ID"
+        )
         print("\n   See README.md for detailed setup instructions")
 
     print("\n" + "=" * 80 + "\n")
@@ -477,19 +440,19 @@ Examples:
 
     # Enable debug logging
     python simple_observability.py --debug
-        """
+        """,
     )
 
     parser.add_argument(
         "--agent-id",
         type=str,
-        help="AgentCore Runtime agent ID (reads from .deployment_metadata.json if not specified)"
+        help="AgentCore Runtime agent ID (reads from .deployment_metadata.json if not specified)",
     )
 
     parser.add_argument(
         "--region",
         type=str,
-        help="AWS region (reads from .deployment_metadata.json or uses us-east-1)"
+        help="AWS region (reads from .deployment_metadata.json or uses us-east-1)",
     )
 
     parser.add_argument(
@@ -497,14 +460,10 @@ Examples:
         type=str,
         choices=["success", "error", "dashboard", "all"],
         default="all",
-        help="Which scenario to run (default: all)"
+        help="Which scenario to run (default: all)",
     )
 
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable debug logging"
-    )
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
     args = parser.parse_args()
 
@@ -550,7 +509,9 @@ Examples:
     logger.info(f"Agent ARN: {agent_arn}")
     logger.info(f"Region: {region}")
     logger.info(f"Scenario: {args.scenario}")
-    logger.info(f"Braintrust observability: {'Enabled' if braintrust_enabled else 'Disabled (CloudWatch only)'}")
+    logger.info(
+        f"Braintrust observability: {'Enabled' if braintrust_enabled else 'Disabled (CloudWatch only)'}"
+    )
 
     client = _create_bedrock_client(region)
 
@@ -580,7 +541,9 @@ Examples:
             print("2. Open Braintrust dashboard at https://www.braintrust.dev/app")
             print("3. Compare observability data across both platforms")
         else:
-            print("2. To enable Braintrust: Redeploy with --braintrust-api-key and --braintrust-project-id")
+            print(
+                "2. To enable Braintrust: Redeploy with --braintrust-api-key and --braintrust-project-id"
+            )
         print("3. Examine span attributes and custom metrics")
         print("4. Review dashboard panels for aggregated metrics\n")
 
