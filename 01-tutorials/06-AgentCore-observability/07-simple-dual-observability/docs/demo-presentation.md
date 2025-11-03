@@ -263,23 +263,35 @@ Switch to CloudWatch dashboard.
 #### Step 4: Review Braintrust Error Trace
 Switch to Braintrust tab.
 
-**Filter for Errors:**
-- Apply filter: `has_error = true`
-- "All failed traces isolated"
-- Click on the error trace
+**Find the Error Trace:**
+1. Go to your project dashboard: https://www.braintrust.dev/app
+2. Select your project: `agentcore-observability-demo`
+3. Click the **Traces** tab
+4. Look for the most recent trace (from a few seconds ago)
+5. Traces are listed with their status and latency
 
-**Error Details:**
-- "Error type: ValueError"
-- "Full error message preserved"
-- "Stack trace available for debugging"
-- Show span marked with error indicator
+**Viewing the Error Trace:**
+- Click on the trace from your error test to open the detail view
+- The timeline shows the full execution flow
+- Look for spans marked with error status (typically shown in red or with error indicator)
 
-**Input Analysis:**
+**What You'll See:**
+- **Timeline View**: Shows all spans in the trace
+- **Span Details**: Click on the failed tool span to see:
+  - Exact input sent to the tool
+  - Error message returned
+  - Timestamp and duration
+  - Tool name and parameters
+- **Trace Attributes**: Summary showing status, token usage, cost
+
+**How This Helps Debugging:**
 - "We can see exactly what the user asked"
 - "And exactly what was sent to the tool"
+- "The exact error message is preserved"
+- "Timeline shows when the error occurred relative to other operations"
 - "Makes reproducing the issue trivial"
 
-**Key Point:** "Braintrust makes debugging fast - we see exactly what happened, why it failed, and can reproduce it instantly."
+**Key Point:** "Braintrust captures the complete execution context - we can see the exact inputs that caused the error and reproduce it instantly."
 
 ### Part 3: Dashboard Deep Dive (12 minutes)
 
