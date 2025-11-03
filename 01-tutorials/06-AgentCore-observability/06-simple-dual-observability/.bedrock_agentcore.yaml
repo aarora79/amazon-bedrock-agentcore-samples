@@ -1,0 +1,41 @@
+default_agent: weather_time_observability_agent
+agents:
+  weather_time_observability_agent:
+    name: weather_time_observability_agent
+    entrypoint: /home/ubuntu/repos/amazon-bedrock-agentcore-samples/01-tutorials/06-AgentCore-observability/06-simple-dual-observability/agent/weather_time_agent.py
+    platform: linux/arm64
+    container_runtime: docker
+    source_path: null
+    aws:
+      execution_role: arn:aws:iam::015469603702:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-4c37ed91a0
+      execution_role_auto_create: false
+      account: 015469603702
+      region: us-east-1
+      ecr_repository: 015469603702.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-weather_time_observability_agent
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+        network_mode_config: null
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: false
+    bedrock_agentcore:
+      agent_id: weather_time_observability_agent-dWTPGP46D4
+      agent_arn: arn:aws:bedrock-agentcore:us-east-1:015469603702:runtime/weather_time_observability_agent-dWTPGP46D4
+      agent_session_id: null
+    codebuild:
+      project_name: bedrock-agentcore-weather_time_observability_agent-builder
+      execution_role: arn:aws:iam::015469603702:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-4c37ed91a0
+      source_bucket: bedrock-agentcore-codebuild-sources-015469603702-us-east-1
+    memory:
+      mode: STM_ONLY
+      memory_id: weather_time_observability_agent_mem-ns8QDr79IG
+      memory_arn: arn:aws:bedrock-agentcore:us-east-1:015469603702:memory/weather_time_observability_agent_mem-ns8QDr79IG
+      memory_name: weather_time_observability_agent_mem
+      event_expiry_days: 30
+      first_invoke_memory_check_done: false
+      was_created_by_toolkit: false
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null
