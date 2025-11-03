@@ -225,6 +225,6 @@ For issues specific to:
 
 ## Additional Resources
 
-- AgentCore Documentation: [AWS Bedrock AgentCore](https://docs.aws.amazon.com/bedrock/)
+- AgentCore Documentation: [Amazon Bedrock AgentCore](https://docs.aws.amazon.com/bedrock/)
 - Braintrust: [Braintrust Documentation](https://www.braintrust.dev/docs)
 - OpenTelemetry: [OTEL Documentation](https://opentelemetry.io/docs/)

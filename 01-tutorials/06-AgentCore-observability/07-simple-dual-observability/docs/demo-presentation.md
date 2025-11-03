@@ -656,7 +656,7 @@ Discuss production deployment:
 ## Additional Resources
 
 ### Documentation
-- AgentCore Documentation: AWS Bedrock AgentCore docs
+- AgentCore Documentation: Amazon Bedrock AgentCore docs
 - CloudWatch Metrics: AWS CloudWatch User Guide
 - Braintrust: https://www.braintrust.dev/docs
 
