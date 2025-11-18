@@ -334,28 +334,6 @@ Built-in error dashboard shows:
 
 ---
 
-## Recommended Approach
-
-### Development/Debugging
-Start with **CloudWatch Only**:
-- See everything happening inside your agent
-- Easy to understand behavior
-- No setup needed
-
-### Production
-Use **Braintrust + CloudWatch** or just **CloudWatch APM**:
-- Braintrust: If you need detailed tracing and LLM cost tracking
-- CloudWatch APM: If you want simple operational monitoring
-
-### Monitoring & Alerting
-Use **CloudWatch APM** for:
-- Quick health checks
-- Performance trends
-- Error rate monitoring
-- Automated alerting
-
----
-
 ## Next Steps
 
 1. **Try CloudWatch Only first** - Deploy without Braintrust credentials
