@@ -312,43 +312,61 @@ fields @timestamp, body, traceId
 
 ## OTEL Export to External Platforms
 
-### Single Platform Export
+### OTEL Export Behavior: CloudWatch vs Braintrust
 
-When OTEL is enabled, AgentCore Runtime exports telemetry to **one platform at a time**:
+When OTEL is enabled, AgentCore Runtime exports telemetry differently based on BRAINTRUST_API_KEY:
 
-- **If Braintrust credentials are NOT set**: Telemetry exports to **CloudWatch only**
-  - CloudWatch Logs: Structured OTEL logs in `otel-rt-logs` stream
-  - CloudWatch Traces: Full distributed traces with all spans and operations
-  - CloudWatch GenAI Observability: Agent-level metrics and invocation details
+#### Without BRAINTRUST_API_KEY (CloudWatch Only)
 
-- **If Braintrust credentials ARE set**: Telemetry exports to **Braintrust only**
-  - Braintrust receives all OTEL spans and traces via Strands telemetry initialization
-  - CloudWatch still receives runtime logs and basic metrics
-  - Traces in Braintrust show full low-level details (LLM calls, tool invocations, etc.)
+**What Gets Sent to CloudWatch**:
+- `runtime-logs` stream: Plain text application logs from your agent code
+- `otel-rt-logs` stream: Structured OTEL JSON with full trace data including:
+  - Distributed traces with all spans and operations
+  - Tool execution details (function names, arguments, results)
+  - LLM model calls and token usage
+  - Session IDs and request IDs
+  - Complete parent-child span relationships
 
-### Observable Differences by Platform
+**What You See in CloudWatch X-Ray**:
+- Sessions tab populated
+- Traces tab shows span hierarchy
+- Full flame graphs and latency breakdowns
+- Complete visibility into agent execution
 
-#### CloudWatch (No Braintrust Configured)
+**Best for**: Comprehensive debugging, understanding agent internals, native AWS integration
 
-**What you see**:
-- Agent-level metrics: invocation count, success/failure rates
-- Session information: conversation history and context
-- Full traces: Complete view of all operations and timing
-- Details: See exactly what happens inside each trace (all tool calls, LLM interactions, etc.)
+#### With BRAINTRUST_API_KEY Set (Agent Exports to Braintrust)
 
-**Best for**: Comprehensive debugging and understanding agent internals
+**What Gets Sent to CloudWatch**:
+- `runtime-logs` stream: Plain text application logs
+- `otel-rt-logs` stream: **EMPTY** (no structured OTEL logs sent)
 
-#### Braintrust (With Credentials Configured)
+**What Gets Sent to Braintrust**:
+- Full OTEL traces directly from Strands agent
+- All spans, tool calls, and execution details
+- LLM metrics (tokens, model, cost)
+- Custom attributes and events
 
-**What you see**:
-- Agent-level metrics: Same as CloudWatch (invocation count, etc.)
-- Trace visibility: Shows that an invocation happened, but NOT the internal details
-- LLM-specific data: Cost tracking, quality scores, custom metrics
-- Low-level details: Available in Braintrust, NOT in CloudWatch
+**What You See in CloudWatch X-Ray**:
+- Sessions tab shows "0/2" (empty - expected)
+- Traces tab is empty (expected)
+- Runtime-logs still show agent execution output
 
-**Trade-off**: Less visibility in CloudWatch, more detailed observability in Braintrust platform
+**Design Intent**: Avoid redundant trace storage when Braintrust is configured as primary observability platform
 
-**Best for**: External observability platform with LLM-specific insights
+**Best for**: External observability with LLM-focused insights, cost optimization for CloudWatch
+
+#### Comparison Table
+
+| Aspect | CloudWatch Only | With Braintrust |
+|--------|-----------------|-----------------|
+| **CloudWatch runtime-logs** | ✅ Plain text logs | ✅ Plain text logs |
+| **CloudWatch otel-rt-logs** | ✅ Full OTEL traces | ❌ Empty (traces in Braintrust) |
+| **CloudWatch X-Ray Visualization** | ✅ Sessions & Traces visible | ❌ Empty (expected) |
+| **Braintrust Dashboard** | N/A | ✅ Full OTEL traces |
+| **Cost** | CloudWatch + X-Ray | Braintrust (no X-Ray traces) |
+
+**Important Note**: If CloudWatch X-Ray appears empty after deploying with BRAINTRUST_API_KEY set, this is **normal and intentional**. Check Braintrust instead for your traces. This is not an error.
 
 #### CloudWatch APM (Agent Services)
 

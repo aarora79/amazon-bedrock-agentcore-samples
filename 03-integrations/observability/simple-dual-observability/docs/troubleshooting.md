@@ -235,9 +235,13 @@ python -c "from tools import calculator; print(calculator('factorial', -5, None)
 
 ## Trace Visibility Issues
 
-### Traces Not Appearing in CloudWatch
+### Traces Not Appearing in CloudWatch X-Ray
 
-**Problem**: No traces visible in CloudWatch X-Ray after 5 minutes
+**Problem**: CloudWatch X-Ray Sessions/Traces tabs are empty, but agent is running successfully
+
+**Important**: This is **EXPECTED behavior when BRAINTRUST_API_KEY is configured**. See section below: "CloudWatch X-Ray Empty When Braintrust Enabled"
+
+**If you have NOT configured Braintrust** and CloudWatch traces are missing:
 
 **Causes**:
 1. Observability not configured
@@ -274,8 +278,72 @@ sleep 180  # Wait 3 minutes for propagation
 python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario success
 
 # 5. Check CloudWatch Logs for errors
-aws logs tail /aws/agentcore/observability --follow
+aws logs tail /aws/bedrock-agentcore/runtimes --follow
 ```
+
+### CloudWatch X-Ray Empty When Braintrust Enabled
+
+**Problem**: CloudWatch X-Ray dashboard shows "Sessions: 0/2" and Traces tab is empty, even though agent executes successfully
+
+**This is EXPECTED and INTENTIONAL behavior.**
+
+**Why This Happens**:
+
+When you configure `BRAINTRUST_API_KEY`:
+1. Agent exports OpenTelemetry traces directly to Braintrust platform
+2. CloudWatch **still receives application logs** (runtime-logs stream)
+3. But CloudWatch **does NOT receive trace spans** (otel-rt-logs stream is empty)
+4. Result: X-Ray has no trace data to visualize
+
+**Design Rationale**:
+- Avoid redundant trace storage (same traces in both platforms)
+- Reduce CloudWatch costs when Braintrust is primary observability platform
+- Keep CloudWatch for operational logs, Braintrust for AI/LLM-focused analysis
+
+**What You Should See**:
+
+| Location | Status | Content |
+|----------|--------|---------|
+| **CloudWatch Logs** | ✅ Active | runtime-logs stream with agent output |
+| **CloudWatch X-Ray** | ❌ Empty | Sessions: 0/2, Traces tab empty (expected) |
+| **Braintrust** | ✅ Active | Full OTEL traces, spans, and execution flow |
+
+**Verification**:
+
+```bash
+# 1. Check that CloudWatch Logs are being written
+aws logs tail /aws/bedrock-agentcore/runtimes/<agent-id>-DEFAULT --since 5m
+
+# Expected output:
+# [runtime-logs] Agent invoked with prompt: ...
+# [runtime-logs] Agent initialized with tools: ...
+# [runtime-logs] Agent invocation completed successfully
+
+# 2. Check that otel-rt-logs stream does NOT exist (when Braintrust enabled)
+aws logs describe-log-streams \
+  --log-group-name /aws/bedrock-agentcore/runtimes/<agent-id>-DEFAULT \
+  --region $AWS_REGION | grep -i "otel"
+# Result: No otel-rt-logs stream (this is correct)
+
+# 3. Verify traces ARE in Braintrust instead
+# Navigate to https://www.braintrust.dev/app and check your project
+# Traces should appear within 1-2 minutes of running the agent
+```
+
+**If you want CloudWatch X-Ray traces instead**:
+
+```bash
+# Deploy agent WITHOUT Braintrust to see X-Ray traces
+scripts/deploy_agent.sh --region $AWS_REGION
+# Do NOT set BRAINTRUST_API_KEY
+
+# Now run agent
+python simple_observability.py --scenario success
+
+# CloudWatch X-Ray will show full traces and Sessions tab will populate
+```
+
+**Summary**: Empty X-Ray when Braintrust is enabled = traces went to Braintrust instead (correct). Not an error.
 
 ### Traces Not Appearing in Braintrust
 
