@@ -455,7 +455,7 @@ When Braintrust **IS** configured (BRAINTRUST_API_KEY set), CloudWatch behavior 
 **What changes when Braintrust is enabled**:
 - ✅ Runtime logs still appear (application output)
 - ❌ **OTEL logs are NOT sent to CloudWatch** (they go to Braintrust instead)
-- ❌ CloudWatch X-Ray has no trace data (Sessions: 0/2, Traces tab empty)
+- ❌ CloudWatch X-Ray has no trace data to visualize
 - ✅ Full OTEL trace data goes to Braintrust instead
 
 **Why?** To avoid redundant trace storage and reduce CloudWatch costs when Braintrust is your primary observability platform.

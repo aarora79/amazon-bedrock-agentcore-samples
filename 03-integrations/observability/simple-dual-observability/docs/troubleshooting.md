@@ -283,7 +283,7 @@ aws logs tail /aws/bedrock-agentcore/runtimes --follow
 
 ### CloudWatch X-Ray Empty When Braintrust Enabled
 
-**Problem**: CloudWatch X-Ray dashboard shows "Sessions: 0/2" and Traces tab is empty, even though agent executes successfully
+**Problem**: CloudWatch X-Ray dashboard is empty (no trace visualization), even though agent executes successfully
 
 **This is EXPECTED and INTENTIONAL behavior.**
 
@@ -305,7 +305,7 @@ When you configure `BRAINTRUST_API_KEY`:
 | Location | Status | Content |
 |----------|--------|---------|
 | **CloudWatch Logs** | ✅ Active | runtime-logs stream with agent output |
-| **CloudWatch X-Ray** | ❌ Empty | Sessions: 0/2, Traces tab empty (expected) |
+| **CloudWatch X-Ray** | ❌ Empty | No trace visualization (expected) |
 | **Braintrust** | ✅ Active | Full OTEL traces, spans, and execution flow |
 
 **Verification**:
