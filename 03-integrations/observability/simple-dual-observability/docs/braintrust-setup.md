@@ -134,8 +134,8 @@ No static YAML configuration file is needed. All configuration is environment-va
 Test OTEL export to Braintrust by running the agent and checking the dashboard:
 
 ```bash
-# Set API key
-export BRAINTRUST_API_KEY=sk-xxxxx
+# Set API key (format: bt-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+export BRAINTRUST_API_KEY=bt-xxxxx
 
 # Run agent test to generate traces
 # The agent automatically configures OTLP export to Braintrust when BRAINTRUST_API_KEY is set
@@ -143,6 +143,7 @@ uv run python scripts/tests/test_agent.py --test weather
 
 # Check that traces appear in Braintrust dashboard
 # Navigate to https://www.braintrust.dev/app
+# Traces should appear within 1-2 minutes
 ```
 
 For more information on verifying the connection, refer to the [Braintrust API documentation](https://docs.braintrust.dev/reference/api).
@@ -153,7 +154,9 @@ For more information on verifying the connection, refer to the [Braintrust API d
 
 1. Navigate to https://www.braintrust.dev/app
 2. Select your project: `agentcore-observability-demo`
-3. You will see tabs: Traces, Experiments, Datasets, Evaluations
+3. You will see multiple tabs and views:
+   - **Logs**: View all invocations with cost and duration
+   - **Traces**: Detailed trace tree view with span hierarchy and timing
 
 ### Understanding the Dashboard
 
@@ -229,14 +232,14 @@ Create custom views for specific use cases:
 ### Timeline View
 
 The timeline shows:
-- Horizontal bars for span duration
-- Color coding by span type:
-  - Blue: LLM calls
-  - Green: Tool executions
-  - Red: Errors
-  - Gray: Other operations
-- Parent-child relationships
-- Timing overlaps
+- Horizontal bars for span duration with relative timing
+- Span hierarchy showing parent-child relationships:
+  - Root span: `invoke_agent` (Strands Agents)
+  - Child spans: `execute_event_loop_cycle`, tool executions, etc.
+  - Leaf spans: Individual operations (e.g., `calculator`, `get_weather`)
+- Color coding and icons indicate span type
+- Timing information showing start time and duration
+- Click on any span to see detailed attributes and timing
 
 ### Token Usage View
 
@@ -302,31 +305,31 @@ python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
 **Problem**: No traces in Braintrust dashboard
 
 **Solutions**:
-1. Verify API key is set: `echo $BRAINTRUST_API_KEY`
-2. Check OTEL config references correct endpoint
-3. Verify project name matches
-4. Check network connectivity to braintrust.dev
-5. Review OTEL collector logs for export errors
+1. Verify API key is set and correct format: `echo $BRAINTRUST_API_KEY` (should start with `bt-`)
+2. Verify project name in Braintrust matches: `agentcore-observability-demo`
+3. Check network connectivity to braintrust.dev: `curl -I https://api.braintrust.dev/otel`
+4. Review agent logs for telemetry initialization: `uv run python -m weather_time_agent 2>&1 | grep -i telemetry`
+5. Wait 1-2 minutes for traces to appear (batch processing)
 
 ### Incomplete Trace Data
 
 **Problem**: Traces missing spans or attributes
 
 **Solutions**:
-1. Verify OTEL config includes all processors
-2. Check attribute size limits (max 1000 chars)
-3. Ensure sampling rate is 1.0 (100%)
-4. Review OTEL collector memory limits
+1. Verify agent code is instrumenting all operations
+2. Check attribute size limits (max 1000 characters each)
+3. Ensure logging includes span context
+4. Review agent logs for any telemetry errors: `grep -i "telemetry\|span" agent.log`
 
 ### High Latency
 
-**Problem**: Slow trace export to Braintrust
+**Problem**: Slow trace export to Braintrust or long agent execution times
 
 **Solutions**:
-1. Enable compression in OTEL config (gzip)
-2. Increase batch size
-3. Check network latency to Braintrust API
-4. Use async export mode
+1. Check network latency to Braintrust API: `curl -w "@curl-format.txt" https://api.braintrust.dev/otel`
+2. Verify agent code doesn't have blocking operations
+3. Review agent logs for long-running spans
+4. Consider sampling or batching at application level if volume is high
 
 ## Verification
 
@@ -351,10 +354,10 @@ Then verify in the Braintrust dashboard:
    - Agent execution flow
 
 If traces don't appear:
-- Verify `BRAINTRUST_API_KEY` is set correctly
-- Check that OTEL config references the correct API key
-- Review OTEL collector logs for export errors
-- Refer to the [Troubleshooting Guide](troubleshooting.md)
+- Verify `BRAINTRUST_API_KEY` is set correctly (format: `bt-xxxxxxx...`)
+- Confirm agent was deployed with the API key environment variable
+- Check agent logs for telemetry initialization messages
+- Refer to the [Troubleshooting Guide](troubleshooting.md) for detailed debugging steps
 
 ## Next Steps
 
