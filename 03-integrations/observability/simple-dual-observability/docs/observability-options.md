@@ -334,11 +334,148 @@ Built-in error dashboard shows:
 
 ---
 
+## CloudWatch Logs: What Actually Gets Recorded
+
+Understanding what appears in CloudWatch logs is key to choosing your observability approach.
+
+### Option 1: CloudWatch Only - Both Runtime and OTEL Logs
+
+When Braintrust is **NOT** configured, CloudWatch captures **both types of logs**:
+
+#### Runtime Logs (Human-Readable)
+Plain text application logs from your agent code:
+
+```
+2025-11-14T21:14:27.242000+00:00 2025/11/14/[runtime-logs]ff54a177-6721-40a0-abf6-5c47e2a265c5 2025-11-14 21:14:27,242,p1,{weather_time_agent.py:172},INFO,Agent invoked with prompt: What's the weather in Paris and what time is it there?
+2025-11-14T21:14:27.243000+00:00 2025/11/14/[runtime-logs]ff54a177-6721-40a0-abf6-5c47e2a265c5 2025-11-14 21:14:27,243,p1,{weather_time_agent.py:128},INFO,Braintrust observability not configured (CloudWatch only)
+2025-11-14T21:14:27.244000+00:00 2025/11/14/[runtime-logs]ff54a177-6721-40a0-abf6-5c47e2a265c5 2025-11-14 21:14:27,244,p1,{weather_time_agent.py:145},INFO,Agent initialized with tools: get_weather, get_time, calculator
+2025-11-14T21:14:28.303000+00:00 2025/11/14/[runtime-logs]ff54a177-6721-40a0-abf6-5c47e2a265c5 2025-11-14 21:14:28,303,p1,{weather_tool.py:91},INFO,Weather for Paris: 64°F, Cloudy
+```
+
+**What runtime logs show**:
+- Agent initialization and configuration
+- Tool execution start/completion
+- Business logic output
+- Errors and warnings from your code
+- Easy to read and understand
+
+#### OTEL Logs (Structured JSON) - Additional Infrastructure Telemetry
+
+**In addition to runtime logs**, CloudWatch receives structured OTEL JSON logs with rich metadata:
+
+```json
+{
+  "resource": {
+    "attributes": {
+      "deployment.environment.name": "bedrock-agentcore:default",
+      "aws.local.service": "weather_time_observability_agent.DEFAULT",
+      "service.name": "weather_time_observability_agent.DEFAULT",
+      "cloud.region": "us-east-1",
+      "aws.log.stream.names": "otel-rt-logs",
+      "telemetry.sdk.name": "opentelemetry",
+      "aws.service.type": "gen_ai_agent",
+      "telemetry.sdk.language": "python",
+      "cloud.provider": "aws",
+      "cloud.resource_id": "arn:aws:bedrock-agentcore:us-east-1:015469603702:runtime/weather_time_observability_agent-dWTPGP46D4/runtime-endpoint/DEFAULT:DEFAULT",
+      "aws.log.group.names": "/aws/bedrock-agentcore/runtimes/weather_time_observability_agent-dWTPGP46D4-DEFAULT",
+      "telemetry.sdk.version": "1.37.0",
+      "cloud.platform": "aws_bedrock_agentcore",
+      "telemetry.auto.version": "0.13.0-aws"
+    }
+  },
+  "scope": {
+    "name": "opentelemetry.instrumentation.botocore.bedrock-runtime",
+    "schemaUrl": "https://opentelemetry.io/schemas/1.30.0"
+  },
+  "timeUnixNano": 1763154868179897302,
+  "severityNumber": 9,
+  "severityText": "INFO",
+  "body": {
+    "output": {
+      "messages": [
+        {
+          "content": {
+            "message": "[{\"toolUse\": {\"toolUseId\": \"tooluse_ajk5IvDyRxixnNqrmiwoNQ\", \"name\": \"get_weather\", \"input\": {\"city\": \"Paris\"}}}]",
+            "finish_reason": "tool_use"
+          },
+          "role": "assistant"
+        }
+      ]
+    },
+    "input": {
+      "messages": [
+        {
+          "content": {
+            "content": "[{\"text\": \"What's the weather in Paris and what time is it there?\"}]"
+          },
+          "role": "user"
+        }
+      ]
+    }
+  },
+  "attributes": {
+    "event.name": "strands.telemetry.tracer",
+    "session.id": "76afc9bf-51d7-49f5-b5e3-69987c8ce236"
+  },
+  "flags": 1,
+  "traceId": "69179baa4228c2b168a28d614b10af8a",
+  "spanId": "14047826b1d884ac"
+}
+```
+
+**What OTEL logs provide** (available ONLY when Braintrust is disabled):
+- **Resource Context**: AWS service details, region, environment
+- **Trace Correlation**: `traceId` and `spanId` linking all operations
+- **LLM Interactions**: Input prompts and model responses
+- **Tool Execution Details**: Tool names, parameters, and outputs
+- **Session Tracking**: Session IDs for conversation continuity
+- **Telemetry Metadata**: SDK versions, auto-instrumentation details
+
+**Key Point**: These OTEL logs in CloudWatch enable X-Ray trace visualization. When you have both runtime-logs and otel-rt-logs, you get full distributed trace visualization in CloudWatch X-Ray console.
+
+---
+
+### Option 2: Braintrust + CloudWatch - Runtime Logs Only
+
+When Braintrust **IS** configured (BRAINTRUST_API_KEY set), CloudWatch behavior changes:
+
+#### Runtime Logs Only (No OTEL Logs)
+
+```
+2025-11-14T21:27:47.557000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,557,p1,{weather_time_agent.py:172},INFO,Agent invoked with prompt: What's the weather in Paris and what time is it there?
+2025-11-14T21:27:47.559000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,557,p1,{weather_time_agent.py:117},INFO,Braintrust observability enabled - initializing telemetry
+2025-11-14T21:27:47.598000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,598,p1,{config.py:164},INFO,OTLP exporter configured
+2025-11-14T21:27:47.598000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,598,p1,{weather_time_agent.py:123},INFO,Strands telemetry initialized successfully
+2025-11-14T21:27:47.599000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,599,p1,{weather_time_agent.py:145},INFO,Agent initialized with tools: get_weather, get_time, calculator
+2025-11-14T21:27:49.437000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:49,437,p1,{weather_time_agent.py:47},INFO,Getting weather for city: Paris
+2025-11-14T21:27:49.437000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:49,437,p1,{weather_tool.py:91},INFO,Weather for Paris: 64°F, Cloudy
+2025-11-14T21:27:52.634000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:52,634,p1,{weather_time_agent.py:183},INFO,Agent invocation completed successfully
+```
+
+**What changes when Braintrust is enabled**:
+- ✅ Runtime logs still appear (application output)
+- ❌ **OTEL logs are NOT sent to CloudWatch** (they go to Braintrust instead)
+- ❌ CloudWatch X-Ray has no trace data (Sessions: 0/2, Traces tab empty)
+- ✅ Full OTEL trace data goes to Braintrust instead
+
+**Why?** To avoid redundant trace storage and reduce CloudWatch costs when Braintrust is your primary observability platform.
+
+---
+
+## Summary: What Each Option Captures
+
+| Data Type | CloudWatch Only | Braintrust Enabled |
+|-----------|-----------------|-------------------|
+| **Runtime logs** | ✅ Yes | ✅ Yes |
+| **OTEL logs (JSON)** | ✅ Yes (enables X-Ray) | ❌ No (goes to Braintrust) |
+| **Trace visualization** | ✅ CloudWatch X-Ray | ❌ Not in CloudWatch |
+| **Full trace detail** | ✅ In CloudWatch | ✅ In Braintrust |
+
+---
+
 ## Next Steps
 
-1. **Try CloudWatch Only first** - Deploy without Braintrust credentials
-2. **Explore metrics and traces** - Use the scripts in `scripts/check_*.sh`
-3. **If needed, add Braintrust** - Edit `.env` with Braintrust credentials and redeploy
-4. **Set up CloudWatch APM** - Access via AWS Console for operational monitoring
-
-See [Observability Architecture](./observability-architecture.md) for technical details about how OTEL logging works.
+1. **Try CloudWatch Only first** - Deploy without Braintrust credentials to see runtime + OTEL logs
+2. **Explore metrics and traces** - Use the scripts in `scripts/check_*.sh` to view both log types
+3. **Compare the logs** - Notice the difference between runtime-logs and otel-rt-logs streams
+4. **If needed, add Braintrust** - Edit `.env` with Braintrust credentials and redeploy to see traces in Braintrust instead

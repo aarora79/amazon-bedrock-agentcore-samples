@@ -43,8 +43,7 @@ simple-dual-observability/
     ├── braintrust-setup.md            # Braintrust guide
     ├── development.md                 # This file
     ├── troubleshooting.md             # Troubleshooting guide
-    ├── observability-architecture.md  # Platform comparison
-    ├── observability-options.md       # Feature options
+    ├── observability-options.md       # Observability approaches and CloudWatch logs
     └── generated-files.md             # Generated files guide
 ```
 

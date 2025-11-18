@@ -74,11 +74,10 @@ The tutorial shows how AgentCore Runtime provides automatic observability via Cl
 For comprehensive information about this observability tutorial, please refer to the following detailed documentation:
 
 ### Observability Guides
-- **[Observability Architecture](docs/observability-architecture.md)** - OTEL architecture, log types, trace correlation, and platform design
-- **[Observability Options](docs/observability-options.md)** - Comparison of three deployment approaches and what each platform shows
+- **[Observability Options](docs/observability-options.md)** - Comparison of three deployment approaches, actual CloudWatch logs, and what each platform captures
+- **[Design & Architecture](docs/design.md)** - System architecture, component interactions, and OTEL flow diagrams
 
 ### Setup and Configuration
-- **[System Design](docs/design.md)** - Architecture overview, component interactions, and OTEL flow diagrams
 - **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard configuration
 
 ### Demonstrations and Development
