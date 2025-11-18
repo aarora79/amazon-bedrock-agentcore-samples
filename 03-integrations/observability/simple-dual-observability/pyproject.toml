@@ -8,6 +8,8 @@ dependencies = [
     "pytz>=2024.1",
     "pydantic>=2.5.0",
     "bedrock-agentcore-starter-toolkit>=0.1.14",
+    "strands-agents[otel]>=1.16.0",
+    "strands-agents-tools>=0.2.15",
 ]
 
 # Note: requirements.txt contains packages for the Docker container

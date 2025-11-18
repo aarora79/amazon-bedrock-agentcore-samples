@@ -32,38 +32,113 @@ def _load_deployment_metadata(script_dir: Path) -> dict:
     return {}
 
 
-def _delete_agent(agent_id: str, region: str) -> None:
+def _delete_agent(
+    agent_id: str,
+    region: str,
+) -> None:
     """
     Delete the agent from AgentCore Runtime.
+
+    Note: The bedrock_agentcore_starter_toolkit's destroy() method is available
+    in newer versions. This script provides cleanup guidance for the current
+    version.
 
     Args:
         agent_id: The agent ID to delete
         region: AWS region
     """
+    import os
+
     logger.info(f"Deleting agent: {agent_id}")
     logger.info(f"Region: {region}")
 
-    try:
-        import boto3
+    logger.info("=" * 70)
+    logger.info("AGENT DELETION GUIDANCE")
+    logger.info("=" * 70)
+    logger.info("")
+    logger.info("STEP 1: DELETE AGENT FROM AGENTCORE UI")
+    logger.info("-" * 70)
+    logger.info("")
+    logger.info("Delete the agent via AWS Bedrock AgentCore console:")
+    logger.info(f"  Agent ID: {agent_id}")
+    logger.info("")
+    logger.info("Or use the destroy() method if available in your toolkit version:")
+    logger.info("  from bedrock_agentcore_starter_toolkit import Runtime")
+    logger.info("  runtime = Runtime()")
+    logger.info("  runtime.destroy(dry_run=False, delete_ecr_repo=True)")
+    logger.info("")
+    logger.info("This will clean up:")
+    logger.info("  - Agent runtime endpoint")
+    logger.info("  - Memory resources")
+    logger.info("  - Associated CloudFormation stacks")
+    logger.info("")
+    logger.info("STEP 2: CLEAN UP AWS RESOURCES (Manual cleanup if needed)")
+    logger.info("-" * 70)
+    logger.info("")
+    logger.info("1. DELETE ECR REPOSITORY:")
+    logger.info(f"   aws ecr delete-repository \\")
+    logger.info(f"     --repository-name bedrock-agentcore-weather_time_observability_agent \\")
+    logger.info(f"     --region {region} \\")
+    logger.info(f"     --force")
+    logger.info("")
+    logger.info("2. DELETE CODEBUILD PROJECT:")
+    logger.info(f"   aws codebuild delete-project \\")
+    logger.info(f"     --name bedrock-agentcore-weather_time_observability_agent \\")
+    logger.info(f"     --region {region}")
+    logger.info("")
+    logger.info("3. CLEAN UP CLOUDWATCH LOGS:")
+    logger.info(f"   aws logs delete-log-group \\")
+    logger.info(f"     --log-group-name /aws/codebuild/bedrock-agentcore-weather_time_observability_agent \\")
+    logger.info(f"     --region {region}")
+    logger.info("")
+    logger.info("4. DELETE IAM ROLE (if custom role was created):")
+    logger.info(f"   aws iam list-roles --query 'Roles[?contains(RoleName, `agentcore`)]'")
+    logger.info(f"   aws iam delete-role --role-name <role-name>")
+    logger.info("")
+    logger.info("STEP 3: CLEAN UP LOCAL METADATA FILES")
+    logger.info("-" * 70)
+    logger.info("")
+    logger.info("Deleting stale deployment metadata to allow fresh deployments...")
 
-        # Delete the agent endpoint using boto3
-        client = boto3.client("bedrock-agentcore", region_name=region)
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
 
-        logger.info("Deleting agent runtime endpoint...")
-        client.delete_agent_runtime_endpoint(agentId=agent_id, endpointName="DEFAULT")
+    metadata_file = script_dir / ".deployment_metadata.json"
+    config_file = project_root / ".bedrock_agentcore.yaml"
 
-        logger.info("=" * 70)
-        logger.info("AGENT DELETED SUCCESSFULLY")
-        logger.info("=" * 70)
-        logger.info(f"Agent ID: {agent_id}")
-        logger.info("The agent has been removed from AgentCore Runtime")
+    files_deleted = []
 
-    except Exception as e:
-        logger.error("=" * 70)
-        logger.error("DELETION FAILED")
-        logger.error("=" * 70)
-        logger.error(f"Error: {str(e)}")
-        raise RuntimeError(f"Agent deletion failed: {str(e)}") from e
+    if metadata_file.exists():
+        os.remove(metadata_file)
+        files_deleted.append(str(metadata_file))
+        logger.info(f"  Deleted: {metadata_file.name}")
+
+    if config_file.exists():
+        os.remove(config_file)
+        files_deleted.append(str(config_file))
+        logger.info(f"  Deleted: {config_file.name}")
+
+    logger.info("")
+    if files_deleted:
+        logger.info("Successfully cleaned up metadata files:")
+        for file_path in files_deleted:
+            logger.info(f"  - {file_path}")
+    else:
+        logger.info("No metadata files found to delete.")
+
+    logger.info("")
+    logger.info("STEP 4: REDEPLOY AGENT")
+    logger.info("-" * 70)
+    logger.info("")
+    logger.info("After deleting the agent from the AgentCore UI, you can redeploy with:")
+    logger.info("")
+    logger.info("  uv run python scripts/deploy_agent.py \\")
+    logger.info("    --braintrust-api-key <your-key> \\")
+    logger.info("    --braintrust-project-id <your-project>")
+    logger.info("")
+    logger.info("The deployment will create a new agent with a fresh agent ID.")
+    logger.info("")
+    logger.info("=" * 70)
 
 
 def main() -> None:

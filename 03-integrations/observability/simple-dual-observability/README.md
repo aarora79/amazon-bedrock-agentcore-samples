@@ -199,8 +199,8 @@ uv sync
 # Option A: Use .env file (recommended for repeated deployments)
 cp .env.example .env
 # Edit .env - add your Braintrust credentials:
-#   BRAINTRUST_API_KEY=your-api-key
-#   BRAINTRUST_PROJECT_ID=your-project-id
+#   BRAINTRUST_API_KEY=sk-user-xxxxxxxxxxxxxxxxxxxxx
+#   BRAINTRUST_PROJECT_ID=proj-xxxxxxxxxxxxxxxxxxxxx
 # Agent will automatically export OTEL traces to both CloudWatch and Braintrust
 scripts/deploy_agent.sh
 
@@ -213,21 +213,27 @@ scripts/deploy_agent.sh --region us-west-2  # Will use credentials from .env
 
 # Option D: Override both .env and command-line arguments
 # Add exact parameter names to .env first:
-#   BRAINTRUST_API_KEY=sk-your-actual-key
-#   BRAINTRUST_PROJECT_ID=your-actual-project-id
+#   BRAINTRUST_API_KEY=sk-user-xxxxxxxxxxxxxxxxxxxxx
+#   BRAINTRUST_PROJECT_ID=proj-xxxxxxxxxxxxxxxxxxxxx
 # Then deploy with command-line overrides:
 scripts/deploy_agent.sh \
     --region us-east-1 \
-    --braintrust-api-key sk-your-override-key \
-    --braintrust-project-id your-override-project-id
+    --braintrust-api-key sk-user-xxxxxxxxxxxxxxxxxxxxx \
+    --braintrust-project-id proj-xxxxxxxxxxxxxxxxxxxxx
 # Agent will export OTEL metrics and traces to Braintrust
 
-# Option E: Call deploy_agent.py directly (advanced)
+# Option E: Update existing agent (auto-update on conflict)
+# Use this flag to update an already-deployed agent instead of creating a new one:
+scripts/deploy_agent.sh --auto-update-on-conflict
+# This is useful when redeploying after running delete_agent.py
+
+# Option F: Call deploy_agent.py directly (advanced)
 # Both deploy_agent.sh and deploy_agent.py support the same arguments:
 uv run python scripts/deploy_agent.py \
     --region us-east-1 \
-    --braintrust-api-key sk-your-api-key \
-    --braintrust-project-id your-project-id
+    --braintrust-api-key sk-user-xxxxxxxxxxxxxxxxxxxxx \
+    --braintrust-project-id proj-xxxxxxxxxxxxxxxxxxxxx \
+    --auto-update-on-conflict
 
 # 3. Test the agent
 scripts/tests/test_agent.sh --test calculator
@@ -246,6 +252,7 @@ scripts/tests/test_agent.sh --prompt "What time is it in Tokyo?"
 # If you skip this step, you will NOT see traces in CloudWatch!
 
 # 5. Check CloudWatch logs to see traces
+# Using the shell script (simple):
 # View logs from the last 30 minutes
 scripts/check_logs.sh --time 30m
 
@@ -257,58 +264,51 @@ scripts/check_logs.sh --follow
 
 # View logs from the last hour
 scripts/check_logs.sh --time 1h
+
+# Or using the Python script for more options (see CloudWatch Logs section below):
+uv run python scripts/get_cw_logs.py --follow
 ```
 
-**Available test commands:**
+## Deployment Scenarios
+
+### Initial Deployment
+
+For the first deployment, use any of the options in the Quickstart section:
+
 ```bash
-# Predefined tests
-scripts/tests/test_agent.sh --test weather      # Test weather tool
-scripts/tests/test_agent.sh --test time         # Test time tool
-scripts/tests/test_agent.sh --test calculator   # Test calculator tool
-scripts/tests/test_agent.sh --test combined     # Test multiple tools
-
-# Custom prompts
-scripts/tests/test_agent.sh --prompt "Your custom question here"
-
-# Interactive mode
-scripts/tests/test_agent.sh --interactive
-
-# Show full response with traces
-scripts/tests/test_agent.sh --test combined --full
+scripts/deploy_agent.sh
 ```
 
-**Load Testing:**
+This creates a new agent with a unique agent ID and saves deployment metadata to `.deployment_metadata.json`.
+
+### Redeploying After Agent Deletion
+
+If you've deleted an agent using `scripts/delete_agent.py` and want to redeploy:
+
 ```bash
-# Run quick load test (5 min, 2 req/min) - generates observability data
-scripts/tests/run_load_test.sh quick
+# After running: uv run python scripts/delete_agent.py
+# This deletes the agent and cleans up metadata files
 
-# Run standard test (15 min, 4 req/min)
-scripts/tests/run_load_test.sh standard
-
-# Run extended test (30 min, 5 req/min) - great for demos
-scripts/tests/run_load_test.sh extended
-
-# Focus on multi-tool queries
-scripts/tests/run_load_test.sh multi-tool
-
-# Include error scenarios (30% errors)
-scripts/tests/run_load_test.sh errors
-
-# Custom configuration
-scripts/tests/run_load_test.sh --duration 20 --rate 5 --multi-tool 50
+# To redeploy the agent with auto-update on conflict:
+scripts/deploy_agent.sh --auto-update-on-conflict
 ```
 
-**Cleanup:**
+The `--auto-update-on-conflict` flag tells the deployment script to:
+- Check if an agent with the same name already exists
+- If it does, automatically update it instead of failing
+- Recreate `.deployment_metadata.json` with the new agent ID
+
+### Updating an Existing Agent
+
+To update agent code without deleting and redeploying:
+
 ```bash
-# Delete agent and all resources
-scripts/cleanup.sh
-
-# Or delete without prompts
-scripts/cleanup.sh --force
-
-# Keep CloudWatch logs
-scripts/cleanup.sh --keep-logs
+# Modify your agent code (e.g., agent/weather_time_agent.py)
+# Then redeploy with auto-update:
+scripts/deploy_agent.sh --auto-update-on-conflict
 ```
+
+This is faster than the delete-and-redeploy workflow and preserves existing observability data.
 
 For detailed configuration and setup instructions, see:
 - **[Braintrust Setup](docs/braintrust-setup.md)** - Braintrust account creation, API key management, and dashboard setup
@@ -331,10 +331,9 @@ After deploying your agent with `scripts/deploy_agent.sh`, follow these steps:
 **⚠️ If you skip this step, you WILL NOT see any traces in CloudWatch!**
 
 Once tracing is enabled, you can:
-- View full distributed traces in CloudWatch X-Ray
+- View CloudWatch Logs for the Agent
 - See all spans (LLM calls, tool invocations, agent reasoning)
 - Correlate logs with traces using trace IDs
-- Export the same traces to Braintrust (if configured)
 
 ## Running the tutorial
 
@@ -346,7 +345,7 @@ Run all three scenarios sequentially with automatic delays between each:
 
 ```bash
 # From tutorial root directory
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
 ```
 
 ### Run Individual Scenarios
@@ -356,7 +355,7 @@ python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all
 Demonstrates successful agent execution with multiple tool calls:
 
 ```bash
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario success
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario success
 ```
 
 Query: "What's the weather in Seattle and what time is it there?"
@@ -372,7 +371,7 @@ Expected behavior:
 Demonstrates error propagation and handling through observability:
 
 ```bash
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario error
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario error
 ```
 
 Query: "Calculate the factorial of -5"
@@ -388,7 +387,7 @@ Expected behavior:
 Displays links and guidance for viewing dashboards:
 
 ```bash
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario dashboard
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario dashboard
 ```
 
 This scenario does not invoke the agent - it provides links and explains what to look for in CloudWatch and Braintrust dashboards.
@@ -397,14 +396,14 @@ This scenario does not invoke the agent - it provides links and explains what to
 
 ```bash
 # Enable debug logging for detailed execution traces
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all --debug
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all --debug
 
 # Specify different AWS region
-python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --region us-west-2 --scenario success
+uv run python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --region us-west-2 --scenario success
 
 # Using environment variables only (no command-line args)
 export AGENTCORE_AGENT_ID=abc123xyz
-python simple_observability.py
+uv run python simple_observability.py
 ```
 
 ## Expected Results
@@ -489,8 +488,6 @@ View the same traces in Braintrust with AI-focused metrics:
 
 To avoid unnecessary AWS charges, delete all created resources:
 
-### Automated Cleanup
-
 ```bash
 # Run cleanup script
 scripts/cleanup.sh
@@ -498,69 +495,6 @@ scripts/cleanup.sh
 # Or with force flag to skip confirmations
 scripts/cleanup.sh --force
 ```
-
-### Manual Cleanup
-
-If you prefer manual cleanup:
-
-```bash
-# Step 1: Delete AgentCore agent
-aws bedrock-agentcore delete-agent --agent-id $AGENTCORE_AGENT_ID
-
-# Step 2: Delete CloudWatch resources
-aws logs delete-log-group --log-group-name /aws/agentcore/observability
-aws cloudwatch delete-dashboards --dashboard-names AgentCore-Observability-Demo
-
-# Step 3: Clean up Braintrust (via web UI)
-# Navigate to https://www.braintrust.dev/app
-# Delete project: "agentcore-observability-demo"
-# Or keep for future use - free tier has no expiration
-
-# Step 4: Remove local files
-rm -f scripts/.deployment_metadata.json
-```
-
-## Cost Estimate
-
-### AWS Costs
-
-**AgentCore Runtime:**
-- Free tier: 1,000 agent invocations per month
-- After free tier: $0.002 per invocation
-- This tutorial: ~3 invocations = FREE (within free tier)
-
-**LLM Model (Claude 3.5 Haiku):**
-- Input tokens: ~500 tokens per query = ~1,500 total
-- Output tokens: ~200 tokens per response = ~600 total
-- Cost per run: ~$0.01
-
-**CloudWatch X-Ray:**
-- Free tier: 100,000 traces per month
-- After free tier: $5 per 1 million traces
-- This tutorial: 3 traces = FREE (within free tier)
-
-**CloudWatch Logs:**
-- Free tier: 5 GB per month
-- After free tier: $0.50 per GB
-- This tutorial: <1 MB = FREE (within free tier)
-
-**Total AWS Cost:** ~$0.01 per tutorial run (LLM charges only)
-
-### Braintrust Costs
-
-**Free Tier (Forever):**
-- Unlimited traces
-- Unlimited projects
-- 7-day trace retention
-- All core features included
-
-**This Tutorial:** FREE (uses free tier)
-
-### Total Cost Estimate
-
-**First Run:** ~$0.01 (one-time setup + LLM)
-**Subsequent Runs:** ~$0.01 per run (LLM only)
-**Monthly Cost:** <$1.00 for occasional testing and learning
 
 ## Additional Resources
 

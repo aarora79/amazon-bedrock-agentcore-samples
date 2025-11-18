@@ -226,6 +226,9 @@ pyrightconfig.json
 lambda.zip
 .kiro/
 
+### Scratchpad notes (local development only)
+.scratchpad/
+
 ### Customer Support Assistant specific
 02-use-cases/customer-support-assistant/.agentcore.json
 02-use-cases/customer-support-assistant/.cognito_access_token

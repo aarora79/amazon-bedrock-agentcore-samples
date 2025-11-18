@@ -38,6 +38,7 @@ Options:
     -n, --name NAME                 Agent name (default: weather-time-observability-agent)
     --braintrust-api-key KEY        Braintrust API key (overrides .env)
     --braintrust-project-id ID      Braintrust project ID (overrides .env)
+    --auto-update-on-conflict       Automatically update existing agent if it already exists
 
 Environment Variables (from .env or shell):
     AWS_REGION                      AWS region for deployment
@@ -60,6 +61,13 @@ Example:
     # Or override .env credentials with command-line arguments
     scripts/deploy_agent.sh --braintrust-api-key bt-xxxxx --braintrust-project-id your-project-id
 
+    # Update existing agent (auto-update on conflict)
+    scripts/deploy_agent.sh --auto-update-on-conflict
+
+    # Combine options
+    scripts/deploy_agent.sh --region us-west-2 --auto-update-on-conflict \\
+      --braintrust-api-key bt-xxxxx --braintrust-project-id your-project-id
+
 Prerequisites:
     - Python 3.11+
     - pip install -r requirements.txt (for deployment dependencies)
@@ -77,6 +85,7 @@ AGENT_NAME="weather_time_observability_agent"
 # Braintrust credentials default to environment variables (from .env)
 BRAINTRUST_API_KEY="${BRAINTRUST_API_KEY:-}"
 BRAINTRUST_PROJECT_ID="${BRAINTRUST_PROJECT_ID:-}"
+AUTO_UPDATE_ON_CONFLICT=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -99,6 +108,10 @@ while [[ $# -gt 0 ]]; do
         --braintrust-project-id)
             BRAINTRUST_PROJECT_ID="$2"
             shift 2
+            ;;
+        --auto-update-on-conflict)
+            AUTO_UPDATE_ON_CONFLICT=true
+            shift
             ;;
         *)
             echo "Unknown option: $1"
@@ -145,6 +158,11 @@ if [ -n "$BRAINTRUST_API_KEY" ] && [ -n "$BRAINTRUST_PROJECT_ID" ]; then
     PYTHON_CMD="$PYTHON_CMD --braintrust-api-key $BRAINTRUST_API_KEY --braintrust-project-id $BRAINTRUST_PROJECT_ID"
 else
     echo "Observability: CloudWatch only (no Braintrust credentials in .env)"
+fi
+
+if [ "$AUTO_UPDATE_ON_CONFLICT" = true ]; then
+    echo "Agent update: Auto-update on conflict enabled"
+    PYTHON_CMD="$PYTHON_CMD --auto-update-on-conflict"
 fi
 
 echo ""

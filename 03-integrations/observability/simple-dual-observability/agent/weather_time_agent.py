@@ -119,7 +119,55 @@ def _initialize_agent() -> Agent:
             from strands.telemetry import StrandsTelemetry
 
             strands_telemetry = StrandsTelemetry()
+
+            # Log all fields in strands_telemetry instance
+            logger.info("=== StrandsTelemetry Instance Fields ===")
+            for field_name, field_value in strands_telemetry.__dict__.items():
+                field_type = type(field_value).__name__
+                logger.info(f"  {field_name}: {field_type}")
+
+                # Log resource attributes if it's a Resource object
+                if field_name == "resource" and hasattr(field_value, "attributes"):
+                    logger.info(f"    Resource attributes:")
+                    for attr_key, attr_val in field_value.attributes.items():
+                        logger.info(f"      {attr_key}: {attr_val}")
+
+                # Log tracer provider info if it's a TracerProvider
+                if field_name == "tracer_provider":
+                    logger.info(f"    TracerProvider type: {type(field_value).__name__}")
+                    if hasattr(field_value, "_span_processors"):
+                        logger.info(f"    Span processors: {len(field_value._span_processors)}")
+
+            logger.info("=== Environment Variables Used ===")
+            # List of sensitive variables to exclude from logging
+            excluded_vars = {"BRAINTRUST_API_KEY", "BRAINTRUST_PROJECT_ID"}
+
+            # Check all environment variables
+            for var_name, var_value in os.environ.items():
+                # Skip excluded sensitive variables
+                if var_name in excluded_vars:
+                    continue
+
+                # Log all other environment variables with OTEL or AWS prefixes, plus OTEL/Bedrock related ones
+                if any(prefix in var_name for prefix in ["OTEL_", "AWS_", "BEDROCK_"]):
+                    # For security: only log SET/NOT SET status, not actual values
+                    # If you need to see actual values during debugging, use: var_value
+                    status = "SET" if var_value else "NOT SET"
+                    logger.info(f"  {var_name}: {status}")
+
             strands_telemetry.setup_otlp_exporter()
+
+            # Log span processors after setup
+            logger.info("=== Span Processors After setup_otlp_exporter() ===")
+            if hasattr(strands_telemetry.tracer_provider, "_span_processors"):
+                for i, processor in enumerate(strands_telemetry.tracer_provider._span_processors):
+                    logger.info(f"  [{i}] {type(processor).__name__}")
+                    if hasattr(processor, "_exporter"):
+                        exporter = processor._exporter
+                        logger.info(f"      Exporter: {type(exporter).__name__}")
+                        if hasattr(exporter, "_endpoint"):
+                            logger.info(f"      Endpoint: {exporter._endpoint}")
+
             logger.info("Strands telemetry initialized successfully")
         except Exception as e:
             logger.warning(f"Failed to initialize Strands telemetry: {e}")
