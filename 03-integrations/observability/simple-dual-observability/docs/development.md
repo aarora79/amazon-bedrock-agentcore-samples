@@ -40,10 +40,12 @@ simple-dual-observability/
 │
 └── docs/
     ├── design.md                      # Architecture documentation
-    ├── cloudwatch-setup.md            # CloudWatch guide
     ├── braintrust-setup.md            # Braintrust guide
+    ├── development.md                 # This file
     ├── troubleshooting.md             # Troubleshooting guide
-    └── development.md                 # This file
+    ├── observability-architecture.md  # Platform comparison
+    ├── observability-options.md       # Feature options
+    └── generated-files.md             # Generated files guide
 ```
 
 ## Local Testing

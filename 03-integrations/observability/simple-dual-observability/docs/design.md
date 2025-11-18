@@ -552,7 +552,6 @@ docker logs otel-collector --follow
 
 After understanding the architecture:
 
-1. Review [CloudWatch Setup](cloudwatch-setup.md) for AWS configuration
-2. Review [Braintrust Setup](braintrust-setup.md) for platform setup
-3. Review [Development Guide](development.md) for customization
-4. Review [Troubleshooting](troubleshooting.md) for common issues
+1. Review [Braintrust Setup](braintrust-setup.md) for Braintrust platform configuration
+2. Review [Development Guide](development.md) for agent customization
+3. Review [Troubleshooting](troubleshooting.md) for CloudWatch and common issues

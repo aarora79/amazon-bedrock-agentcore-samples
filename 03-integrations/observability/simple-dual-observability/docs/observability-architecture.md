@@ -359,7 +359,7 @@ When OTEL is enabled, AgentCore Runtime exports telemetry to **one platform at a
 
 **Best for**: Quick operational overview of agent health
 
-See [demo.md](./demo.md) for detailed examples and screenshots of each platform's capabilities.
+See [Braintrust Setup](braintrust-setup.md) for detailed examples and screenshots of each platform's capabilities.
 
 ### How Export Works
 

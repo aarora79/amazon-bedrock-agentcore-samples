@@ -859,7 +859,7 @@ curl -X POST https://api.braintrust.dev/otel \
 If issues persist after troubleshooting:
 
 1. Review [System Design](design.md) for architecture understanding
-2. Review [CloudWatch Setup](cloudwatch-setup.md) for configuration details
-3. Review [Braintrust Setup](braintrust-setup.md) for platform configuration
-4. Review [Development Guide](development.md) for code customization
+2. Review [Braintrust Setup](braintrust-setup.md) for platform configuration
+3. Review [Development Guide](development.md) for code customization
+4. Check [Observability Options](observability-options.md) for alternative approaches
 5. Contact AWS Support or open GitHub issue with diagnostic information
