@@ -241,6 +241,16 @@ The timeline shows:
 - Timing information showing start time and duration
 - Click on any span to see detailed attributes and timing
 
+**Example Dashboard**:
+
+![Braintrust Dashboard with Agent Traces](img/bt.png)
+
+The screenshot shows:
+- Left panel: Invoke logs listing with metrics (cost, duration, tokens)
+- Center: Trace search and filtering interface
+- Right: Trace tree view showing span hierarchy and execution timeline
+- Metrics panel: Token counts, cost estimates, and performance metrics
+
 ### Token Usage View
 
 View token consumption:
