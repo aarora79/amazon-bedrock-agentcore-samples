@@ -194,15 +194,13 @@ def calculator(
     # Demonstrates error handling (factorial of negative number)
 ```
 
-### 6. OTEL Collector (config/otel_config.yaml)
+### 6. Telemetry Instrumentation (Strands Library)
 
-**Purpose**: Receives traces and exports to multiple platforms
+**Purpose**: Automatically instruments agent code and exports traces to multiple platforms
 
 **Configuration**:
 
-**Receivers**:
-- OTLP/gRPC on port 4317
-- OTLP/HTTP on port 4318
+The Strands telemetry library automatically configures:
 
 **Processors**:
 - Batch processor (groups spans for efficiency)
@@ -210,23 +208,17 @@ def calculator(
 - Memory limiter (prevents OOM)
 
 **Exporters**:
-1. **AWS CloudWatch EMF**: Exports metrics and traces
-2. **OTLP/Braintrust**: Exports to Braintrust platform
-3. **Logging**: Debug output (optional)
+1. **OTLP/Braintrust**: Exports to Braintrust platform (when BRAINTRUST_API_KEY is configured)
+2. **CloudWatch Logs**: Captured automatically by AgentCore Runtime
+3. **Logging**: Debug output to stdout (optional)
 
-**Configuration Example**:
-```yaml
-exporters:
-  awsemf:
-    region: us-east-1
-    namespace: AgentCore/Observability
-    log_group_name: /aws/agentcore/traces
+**Configuration**:
+All configuration is handled via environment variables:
+- `BRAINTRUST_API_KEY`: API key for Braintrust platform
+- `OTEL_*`: Standard OpenTelemetry environment variables
+- `BEDROCK_*`: Bedrock-specific configuration
 
-  otlp/braintrust:
-    endpoint: https://api.braintrust.dev/otel
-    headers:
-      Authorization: Bearer ${BRAINTRUST_API_KEY}
-```
+The agent uses the Strands telemetry library which automatically configures OTLP exporters based on these environment variables. No static YAML configuration file is needed.
 
 ### 7. CloudWatch X-Ray
 
@@ -375,21 +367,23 @@ Exporting to both CloudWatch and Braintrust provides complementary capabilities:
 ### Export Architecture
 
 ```
-AgentCore Runtime (generates OTEL spans)
+AgentCore Runtime (with Strands telemetry)
     |
     v
-OTEL Collector (configured for dual export)
+OTLP Exporter (environment variable configured)
     |
     +------------------+------------------+
     |                  |                  |
     v                  v                  v
-AWS EMF           OTLP/Braintrust    Logging
-Exporter          Exporter           Exporter
+CloudWatch Logs   OTLP/Braintrust    Logging
+(AgentCore)       Exporter           Exporter
     |                  |                  |
     v                  v                  v
-CloudWatch        Braintrust API     stdout
-X-Ray, Logs       Platform           (debug)
+CloudWatch Logs   Braintrust API     stdout
+(OTEL traces)     Platform           (debug)
 ```
+
+**Note**: Configuration is purely environment variable-based using the Strands telemetry library. No external OTEL Collector or static YAML configuration is required.
 
 ### Trace Correlation
 

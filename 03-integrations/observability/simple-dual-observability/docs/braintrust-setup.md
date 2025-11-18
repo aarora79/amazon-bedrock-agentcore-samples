@@ -60,17 +60,9 @@ echo "BRAINTRUST_API_KEY=bt-xxxxx" >> .env
 export BRAINTRUST_API_KEY=bt-xxxxx
 ```
 
-**Option 2: OTEL Collector Config**
+**Option 2: Automatic Configuration**
 
-The API key is used in `config/otel_config.yaml`:
-
-```yaml
-exporters:
-  otlp/braintrust:
-    endpoint: https://api.braintrust.dev/otel
-    headers:
-      Authorization: Bearer ${BRAINTRUST_API_KEY}
-```
+When the agent is deployed with `BRAINTRUST_API_KEY` set, the Strands telemetry library automatically configures OTLP export to Braintrust's endpoint (https://api.braintrust.dev/otel) using the API key from the environment variable.
 
 **Security Best Practices**:
 - Never commit API keys to git
@@ -116,35 +108,26 @@ Enable optional features for enhanced observability:
 3. **Experiments**: A/B testing for prompts
 4. **Monitoring**: Real-time alerting (paid feature)
 
-## OTEL Configuration
+## Telemetry Configuration
 
-### Configure OTEL Collector
+### Automatic OTEL Export
 
-The tutorial includes pre-configured OTEL settings in `config/otel_config.yaml`:
+The agent uses the Strands telemetry library which automatically configures OTLP export settings:
 
-```yaml
-exporters:
-  otlp/braintrust:
-    endpoint: https://api.braintrust.dev/otel
-    headers:
-      Authorization: Bearer ${BRAINTRUST_API_KEY}
-    tls:
-      insecure: false
-    compression: gzip
-    timeout: 30s
-    retry_on_failure:
-      enabled: true
-      initial_interval: 5s
-      max_interval: 30s
-      max_elapsed_time: 300s
-
-service:
-  pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [memory_limiter, resource, batch]
-      exporters: [otlp/braintrust, awsemf, logging]
+```python
+# In weather_time_agent.py
+strands_telemetry = StrandsTelemetry()
+strands_telemetry.setup_otlp_exporter()
 ```
+
+The OTLP exporter is automatically configured with:
+- **Endpoint**: `https://api.braintrust.dev/otel` (when BRAINTRUST_API_KEY is set)
+- **Authentication**: Uses BRAINTRUST_API_KEY from environment
+- **Retries**: Automatic retry with exponential backoff
+- **Compression**: gzip compression for efficiency
+- **Batching**: Automatic span batching for better performance
+
+No static YAML configuration file is needed. All configuration is environment-variable driven.
 
 ### Verify Configuration
 
@@ -154,10 +137,8 @@ Test OTEL export to Braintrust by running the agent and checking the dashboard:
 # Set API key
 export BRAINTRUST_API_KEY=sk-xxxxx
 
-# Update OTEL config with your API key
-# Edit config/otel_config.yaml and ensure the BRAINTRUST_API_KEY is set
-
 # Run agent test to generate traces
+# The agent automatically configures OTLP export to Braintrust when BRAINTRUST_API_KEY is set
 uv run python scripts/tests/test_agent.py --test weather
 
 # Check that traces appear in Braintrust dashboard
@@ -293,8 +274,9 @@ If setting up manually:
 # 1. Set API key
 export BRAINTRUST_API_KEY=bt-xxxxx
 
-# 2. Update OTEL config
-# Edit config/otel_config.yaml and replace ${BRAINTRUST_API_KEY}
+# 2. Deploy agent with the API key
+# The agent automatically uses BRAINTRUST_API_KEY from the environment
+scripts/deploy_agent.sh
 
 # 3. Run demo
 python simple_observability.py --agent-id $AGENTCORE_AGENT_ID --scenario all

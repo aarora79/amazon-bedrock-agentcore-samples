@@ -283,35 +283,32 @@ aws logs tail /aws/agentcore/observability --follow
 
 **Causes**:
 1. Invalid Braintrust API key
-2. OTEL collector not configured
+2. BRAINTRUST_API_KEY environment variable not set
 3. Network connectivity issues
 4. Project name mismatch
 
 **Solutions**:
 
 ```bash
-# 1. Verify API key
+# 1. Verify API key is set
+echo "BRAINTRUST_API_KEY: $BRAINTRUST_API_KEY"
+
+# 2. Verify API key is valid
 curl -H "Authorization: Bearer $BRAINTRUST_API_KEY" \
   https://api.braintrust.dev/v1/auth/verify
 
-# 2. Check OTEL config
-cat config/otel_config.yaml | grep braintrust -A 10
-
-# 3. Test connectivity
+# 3. Test connectivity to Braintrust OTEL endpoint
 curl -I https://api.braintrust.dev/otel/v1/traces
 
 # 4. Verify project exists
 # Navigate to https://www.braintrust.dev/app
 # Check project: agentcore-observability-demo exists
 
-# 5. Check OTEL collector logs
-docker logs otel-collector 2>&1 | grep braintrust
+# 5. Check agent logs for telemetry initialization
+uv run python -m weather_time_agent 2>&1 | grep -i "telemetry\|braintrust\|initialized"
 
-# 6. Manually export test trace
-curl -X POST https://api.braintrust.dev/otel/v1/traces \
-  -H "Authorization: Bearer $BRAINTRUST_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"resourceSpans": []}'
+# 6. For deployed agents, verify BRAINTRUST_API_KEY is in environment
+aws bedrock-agentcore get-agent --agent-id $AGENT_ID --region $AWS_REGION | jq '.agent.envVars'
 ```
 
 ### Incomplete Traces
@@ -320,7 +317,7 @@ curl -X POST https://api.braintrust.dev/otel/v1/traces \
 
 **Causes**:
 1. Agent timeout during execution
-2. OTEL collector buffer overflow
+2. Batch processor not flushing spans
 3. Span attribute size limits exceeded
 4. Network interruption during export
 
@@ -330,15 +327,14 @@ curl -X POST https://api.braintrust.dev/otel/v1/traces \
 # 1. Check agent execution completed
 aws logs filter-log-events \
   --log-group-name /aws/agentcore/observability \
-  --filter-pattern '"AgentInvocation" "COMPLETED"' \
+  --filter-pattern '"COMPLETED"' \
   --region $AWS_REGION
 
-# 2. Increase OTEL collector memory limit
-# Edit config/otel_config.yaml:
-# memory_limiter:
-#   limit_mib: 1024  # Increase from 512
+# 2. Force span flush by checking logs
+# The agent automatically flushes spans on completion
+# Check for "Strands telemetry initialized successfully" in logs
 
-# 3. Check for dropped spans
+# 3. Check for dropped spans in CloudWatch
 aws logs filter-log-events \
   --log-group-name /aws/agentcore/observability \
   --filter-pattern '"dropped_spans"' \
@@ -346,7 +342,11 @@ aws logs filter-log-events \
 
 # 4. Reduce span attribute size
 # Attributes should be < 1000 characters
-# Check agent code for large attributes
+# Check agent code for large attributes in logger statements
+# Use logging.basicConfig to limit message size
+
+# 5. Increase agent timeout if spans are missing due to premature termination
+# Update agent configuration in AgentCore console
 ```
 
 ## Performance Problems
