@@ -342,27 +342,29 @@ Root Span Status: OK
 Child Span Status: ERROR (calculator span)
 ```
 
-## Dual Export Strategy
+## Dual-Platform Observability Strategy
 
-### Why Dual Export?
+### Why Dual-Platform Observability?
 
-Exporting to both CloudWatch and Braintrust provides complementary capabilities:
+This tutorial demonstrates two distinct observability mechanisms that work together:
 
-**CloudWatch Benefits**:
-- Native AWS integration
+**CloudWatch Observability (Automatic, from AgentCore Runtime)**:
+- Always enabled with zero configuration
+- Receives vended traces from AgentCore Runtime infrastructure
+- Native AWS integration with CloudWatch Logs and X-Ray
 - CloudWatch Alarms for alerting
-- Long-term retention
+- Long-term retention policies
 - VPC integration
-- Cost-effective for AWS workloads
 
-**Braintrust Benefits**:
-- AI-specific metrics
-- LLM cost tracking
-- Quality evaluations
-- Better visualizations
-- Prompt management
+**Braintrust Observability (Optional, from Strands Agent)**:
+- Opt-in via `BRAINTRUST_API_KEY` environment variable
+- Receives OpenTelemetry traces directly from the Strands agent
+- AI-specific metrics (LLM tokens, costs, quality)
+- Better LLM-focused visualizations
+- Evaluations and prompt management
+- Independent of AWS infrastructure
 
-**Both receive identical OTEL traces** - vendor-neutral format prevents lock-in.
+**Key Difference**: CloudWatch traces come from AgentCore Runtime infrastructure (vended format), while Braintrust traces come from your Strands agent code (OTEL format). These are complementary, not redundant.
 
 ### Export Architecture
 
@@ -419,8 +421,9 @@ Results: Identical spans visible in both platforms
 5. **Claude selects tools**: Instrumented as child spans
 6. **Tools execute via Gateway**: Each tool call is a span
 7. **Agent aggregates results**: Final response span
-8. **Traces export**: OTEL collector sends to both platforms
-9. **User views traces**: Same data in CloudWatch and Braintrust
+8. **CloudWatch tracing**: AgentCore Runtime automatically exports vended traces to CloudWatch Logs/X-Ray
+9. **Braintrust export** (optional): If BRAINTRUST_API_KEY is set, Strands agent exports OTEL traces to Braintrust
+10. **User views traces**: CloudWatch (always available) and optionally Braintrust (if configured)
 
 ## Performance Characteristics
 

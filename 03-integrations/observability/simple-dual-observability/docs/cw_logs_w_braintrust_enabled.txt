@@ -1,0 +1,97 @@
+========================================
+CLOUDWATCH LOGS FOR AGENT
+========================================
+Agent ID: weather_time_observability_agent-dWTPGP46D4
+Log Group: /aws/bedrock-agentcore/runtimes/weather_time_observability_agent-dWTPGP46D4-DEFAULT
+Region: us-east-1
+========================================
+
+Running: aws logs tail "/aws/bedrock-agentcore/runtimes/weather_time_observability_agent-dWTPGP46D4-DEFAULT" --since 3m --region us-east-1
+
+2025-11-14T21:27:47.557000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,557,p1,{weather_time_agent.py:172},INFO,Agent invoked with prompt: What's the weather in Paris and what time is it there?
+2025-11-14T21:27:47.559000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,557,p1,{weather_time_agent.py:117},INFO,Braintrust observability enabled - initializing telemetry
+2025-11-14T21:27:47.564000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,559,p1,{config.py:104},INFO,Initializing tracer
+2025-11-14T21:27:47.598000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,598,p1,{config.py:164},INFO,OTLP exporter configured
+2025-11-14T21:27:47.598000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,598,p1,{weather_time_agent.py:123},INFO,Strands telemetry initialized successfully
+2025-11-14T21:27:47.599000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,599,p1,{weather_time_agent.py:145},INFO,Agent initialized with tools: get_weather, get_time, calculator
+2025-11-14T21:27:47.600000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:47,600,p1,{metrics.py:478},INFO,Creating Strands MetricsClient
+2025-11-14T21:27:48.372000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c Tool #1: get_weather
+2025-11-14T21:27:48.634000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c Tool #2: get_time
+2025-11-14T21:27:49.435000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:49,435,p1,{weather_time_agent.py:67},INFO,Getting time for timezone: Europe/Paris
+2025-11-14T21:27:49.436000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:49,436,p1,{time_tool.py:68},INFO,Getting time for timezone: Europe/Paris
+2025-11-14T21:27:49.437000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:49,437,p1,{weather_time_agent.py:47},INFO,Getting weather for city: Paris
+2025-11-14T21:27:49.437000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:49,437,p1,{weather_tool.py:74},INFO,Getting weather for city: paris
+2025-11-14T21:27:49.437000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:49,437,p1,{weather_tool.py:91},INFO,Weather for Paris: 64°F, Cloudy
+2025-11-14T21:27:49.449000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:49,449,p1,{time_tool.py:84},INFO,Time in Europe/Paris: 2025-11-14 10:27:49 PM
+2025-11-14T21:27:51.193000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c Here's the current information for Paris:
+2025-11-14T21:27:51.257000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c **Weather:**
+2025-11-14T21:27:51.257000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c - Temperature: 64°F
+2025-11-14T21:27:51.284000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c - Conditions: Cloudy
+2025-11-14T21:27:51.341000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c - Humidity: 70%
+2025-11-14T21:27:51.341000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c **Time:**
+2025-11-14T21:27:51.414000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c - Current time: 10:27 PM
+2025-11-14T21:27:51.492000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c - Date: Friday, November 14, 2025
+2025-11-14T21:27:51.550000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c - Timezone: Europe/Paris (UTC+1)
+2025-11-14T21:27:52.634000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:52,634,p1,{weather_time_agent.py:183},INFO,Agent invocation completed successfully
+2025-11-14T21:27:52.634000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c {"timestamp": "2025-11-14T21:27:52.634Z", "level": "INFO", "message": "Invocation completed successfully (5.077s)", "logger": "bedrock_agentcore.app", "requestId": "b9f01169-5edb-4208-92db-de9870648743", "sessionId": "bb2962db-77a1-45bb-8894-468d0f26f904"}
+2025-11-14T21:27:52.635000+00:00 2025/11/14/[runtime-logs]44ed2d92-3d5e-42fa-ab34-30050e2c046c 2025-11-14 21:27:52,634,p1,{app.py:353},INFO,Invocation completed successfully (5.077s)
+2025-11-14T21:27:54.341000+00:00 2025/11/14/[runtime-logs]bdd1320e-9a85-4829-9724-a19e19731204 2025-11-14 21:27:54,340,p1,{credentials.py:1143},INFO,Found credentials from IAM Role: execution_role
+2025-11-14T21:27:54.386000+00:00 2025/11/14/[runtime-logs]bdd1320e-9a85-4829-9724-a19e19731204 2025-11-14 21:27:54,386,p1,{weather_time_agent.py:100},INFO,Initializing Strands agent with model: us.anthropic.claude-haiku-4-5-20251001-v1:0
+2025-11-14T21:28:32.665000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:32,664,p1,{weather_time_agent.py:172},INFO,Agent invoked with prompt: What's the weather in Paris and what time is it there?
+2025-11-14T21:28:32.665000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:32,664,p1,{weather_time_agent.py:117},INFO,Braintrust observability enabled - initializing telemetry
+2025-11-14T21:28:32.666000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:32,666,p1,{config.py:104},INFO,Initializing tracer
+2025-11-14T21:28:32.703000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:32,703,p1,{config.py:164},INFO,OTLP exporter configured
+2025-11-14T21:28:32.703000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:32,703,p1,{weather_time_agent.py:123},INFO,Strands telemetry initialized successfully
+2025-11-14T21:28:32.704000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:32,704,p1,{weather_time_agent.py:145},INFO,Agent initialized with tools: get_weather, get_time, calculator
+2025-11-14T21:28:32.705000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:32,704,p1,{metrics.py:478},INFO,Creating Strands MetricsClient
+2025-11-14T21:28:33.398000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df Tool #1: get_weather
+2025-11-14T21:28:33.572000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df Tool #2: get_time
+2025-11-14T21:28:34.079000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:34,079,p1,{weather_time_agent.py:67},INFO,Getting time for timezone: Europe/Paris
+2025-11-14T21:28:34.079000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:34,079,p1,{time_tool.py:68},INFO,Getting time for timezone: Europe/Paris
+2025-11-14T21:28:34.080000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:34,080,p1,{weather_time_agent.py:47},INFO,Getting weather for city: Paris
+2025-11-14T21:28:34.080000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:34,080,p1,{weather_tool.py:74},INFO,Getting weather for city: paris
+2025-11-14T21:28:34.080000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:34,080,p1,{weather_tool.py:91},INFO,Weather for Paris: 64°F, Cloudy
+2025-11-14T21:28:34.092000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:34,092,p1,{time_tool.py:84},INFO,Time in Europe/Paris: 2025-11-14 10:28:34 PM
+2025-11-14T21:28:35.438000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df Here's the information for Paris:
+2025-11-14T21:28:35.462000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df **Weather:**
+2025-11-14T21:28:35.489000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df - Temperature: 64°F
+2025-11-14T21:28:35.515000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df - Conditions: Cloudy
+2025-11-14T21:28:35.541000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df - Humidity: 70%
+2025-11-14T21:28:35.541000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df **Time:**
+2025-11-14T21:28:35.661000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df - Current time: 10:28 PM (22:28)
+2025-11-14T21:28:35.738000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df - Date: Friday, November 14, 2025
+2025-11-14T21:28:35.815000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df - Timezone: Europe/Paris (UTC+1)
+2025-11-14T21:28:36.771000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:36,771,p1,{weather_time_agent.py:183},INFO,Agent invocation completed successfully
+2025-11-14T21:28:36.771000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df {"timestamp": "2025-11-14T21:28:36.771Z", "level": "INFO", "message": "Invocation completed successfully (4.108s)", "logger": "bedrock_agentcore.app", "requestId": "fe025cac-6bf1-4b19-ad20-f284fd60d813", "sessionId": "db9f5d2a-dcaa-40a2-a35e-6a37fe700e8a"}
+2025-11-14T21:28:36.771000+00:00 2025/11/14/[runtime-logs]0a91ddb5-fef8-49c7-907f-5725ddf524df 2025-11-14 21:28:36,771,p1,{app.py:353},INFO,Invocation completed successfully (4.108s)
+2025-11-14T21:28:39.221000+00:00 2025/11/14/[runtime-logs]06a441e7-dd5d-4c11-994f-d716e48a9d6c 2025-11-14 21:28:39,221,p1,{credentials.py:1143},INFO,Found credentials from IAM Role: execution_role
+2025-11-14T21:28:39.267000+00:00 2025/11/14/[runtime-logs]06a441e7-dd5d-4c11-994f-d716e48a9d6c 2025-11-14 21:28:39,267,p1,{weather_time_agent.py:100},INFO,Initializing Strands agent with model: us.anthropic.claude-haiku-4-5-20251001-v1:0
+2025-11-14T21:29:10.594000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:10,593,p1,{weather_time_agent.py:172},INFO,Agent invoked with prompt: What's the weather in Paris and what time is it there?
+2025-11-14T21:29:10.594000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:10,594,p1,{weather_time_agent.py:117},INFO,Braintrust observability enabled - initializing telemetry
+2025-11-14T21:29:10.596000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:10,595,p1,{config.py:104},INFO,Initializing tracer
+2025-11-14T21:29:10.632000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:10,632,p1,{config.py:164},INFO,OTLP exporter configured
+2025-11-14T21:29:10.632000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:10,632,p1,{weather_time_agent.py:123},INFO,Strands telemetry initialized successfully
+2025-11-14T21:29:10.633000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:10,633,p1,{weather_time_agent.py:145},INFO,Agent initialized with tools: get_weather, get_time, calculator
+2025-11-14T21:29:10.634000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:10,634,p1,{metrics.py:478},INFO,Creating Strands MetricsClient
+2025-11-14T21:29:11.317000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 Tool #1: get_weather
+2025-11-14T21:29:11.469000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 Tool #2: get_time
+2025-11-14T21:29:11.918000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:11,918,p1,{weather_time_agent.py:67},INFO,Getting time for timezone: Europe/Paris
+2025-11-14T21:29:11.919000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:11,918,p1,{time_tool.py:68},INFO,Getting time for timezone: Europe/Paris
+2025-11-14T21:29:11.919000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:11,919,p1,{weather_time_agent.py:47},INFO,Getting weather for city: Paris
+2025-11-14T21:29:11.919000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:11,919,p1,{weather_tool.py:74},INFO,Getting weather for city: paris
+2025-11-14T21:29:11.919000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:11,919,p1,{weather_tool.py:91},INFO,Weather for Paris: 64°F, Cloudy
+2025-11-14T21:29:11.931000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:11,931,p1,{time_tool.py:84},INFO,Time in Europe/Paris: 2025-11-14 10:29:11 PM
+2025-11-14T21:29:13.289000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 Here's the current information for Paris:
+2025-11-14T21:29:13.320000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 **Weather:**
+2025-11-14T21:29:13.342000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 - Temperature: 64°F
+2025-11-14T21:29:13.382000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 - Conditions: Cloudy
+2025-11-14T21:29:13.406000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 - Humidity: 70%
+2025-11-14T21:29:13.406000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 **Time:**
+2025-11-14T21:29:13.455000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 - Current time: 10:29 PM
+2025-11-14T21:29:13.531000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 - Date: Friday, November 14, 2025
+2025-11-14T21:29:13.615000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 - Timezone: Europe/Paris (UTC+1)
+2025-11-14T21:29:14.521000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:14,521,p1,{weather_time_agent.py:183},INFO,Agent invocation completed successfully
+2025-11-14T21:29:14.521000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 {"timestamp": "2025-11-14T21:29:14.521Z", "level": "INFO", "message": "Invocation completed successfully (3.928s)", "logger": "bedrock_agentcore.app", "requestId": "5df4dae3-337b-4b99-bbb0-0f56e53f7bb3", "sessionId": "5a51074d-19c3-4376-a055-dcebe34eaf93"}
+2025-11-14T21:29:14.521000+00:00 2025/11/14/[runtime-logs]a7a2db18-7c29-4f63-b5f8-7350a91d64f1 2025-11-14 21:29:14,521,p1,{app.py:353},INFO,Invocation completed successfully (3.928s)
+2025-11-14T21:29:17.329000+00:00 2025/11/14/[runtime-logs]27d3d668-3799-4565-b10b-f40ffa8a7a62 2025-11-14 21:29:17,329,p1,{credentials.py:1143},INFO,Found credentials from IAM Role: execution_role
+2025-11-14T21:29:17.377000+00:00 2025/11/14/[runtime-logs]27d3d668-3799-4565-b10b-f40ffa8a7a62 2025-11-14 21:29:17,377,p1,{weather_time_agent.py:100},INFO,Initializing Strands agent with model: us.anthropic.claude-haiku-4-5-20251001-v1:0

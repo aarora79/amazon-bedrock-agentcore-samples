@@ -2,22 +2,22 @@
 
 ## Overview
 
-This tutorial demonstrates Amazon Bedrock AgentCore's automatic OpenTelemetry instrumentation with flexible observability options:
+This tutorial demonstrates two observability approaches for Amazon Bedrock AgentCore agents:
 
-1. **CloudWatch Observability (Default)**: Always enabled automatically with zero configuration
-2. **Braintrust Observability (Optional)**: Add AI-focused observability with LLM metrics and cost tracking
+1. **CloudWatch Observability (Default & Always Active)**: AgentCore Runtime automatically provides vended traces to CloudWatch Logs and X-Ray with zero configuration
+2. **Braintrust Observability (Optional)**: Add AI-focused observability by exporting OpenTelemetry traces from the agent to Braintrust platform
 
-The tutorial shows how AgentCore Runtime provides zero-code observability for agents deployed to the Runtime, with the option to export traces to Braintrust (an AI-focused observability platform) in addition to CloudWatch using standard OTEL format.
+The tutorial shows how AgentCore Runtime provides automatic observability via CloudWatch, with the optional ability to add AI-focused monitoring through Braintrust by exporting OpenTelemetry traces from your Strands agent. Note: CloudWatch traces are provided by AgentCore Runtime infrastructure, while Braintrust receives OTEL traces directly from your agent code.
 
 ### Use case details
 | Information         | Details                                                                                                                             |
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | Use case type       | observability, monitoring                                                                                                           |
 | Agent type          | Single agent with tools                                                                                                             |
-| Use case components | AgentCore Runtime, Strands Agent, built-in tools, OTEL dual export                                                               |
+| Use case components | AgentCore Runtime, Strands Agent, built-in tools, dual-platform observability (CloudWatch + Braintrust)                          |
 | Use case vertical   | DevOps, Platform Engineering, AI Operations                                                                                        |
 | Example complexity  | Intermediate                                                                                                                        |
-| SDK used            | Amazon Bedrock AgentCore Runtime, boto3, OpenTelemetry                                                                             |
+| SDK used            | Amazon Bedrock AgentCore Runtime, boto3, OpenTelemetry, Strands                                                                   |
 
 ## Assets
 
@@ -30,40 +30,44 @@ The tutorial shows how AgentCore Runtime provides zero-code observability for ag
 ### Use case Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  TUTORIAL ARCHITECTURE                                          │
-│                                                                 │
-│  Your Laptop                                                    │
-│    ↓ (runs simple_observability.py or test_agent.sh)          │
-│  Python CLI Script (boto3 client)                              │
-│    ↓ (API call: invoke_agent)                                  │
-│  AgentCore Runtime (Managed Service)                           │
-│    ↓ (automatic OTEL instrumentation)                          │
-│  Strands Agent (deployed to Runtime)                           │
-│    ├─ Weather Tool (built-in)                                  │
-│    ├─ Time Tool (built-in)                                     │
-│    └─ Calculator Tool (built-in)                               │
-│    ↓ (traces exported automatically)                           │
-│                                                                 │
-│  ┌──────────────────┬─────────────────┐                        │
-│  │ CloudWatch Logs  │  Braintrust     │                        │
-│  │ + X-Ray Traces   │  (AI platform)  │                        │
-│  └──────────────────┴─────────────────┘                        │
-│                                                                 │
-│  Key: Zero code changes for observability                      │
-│       Vendor-neutral OTEL format                               │
-│       Fully managed agent hosting                              │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│  OBSERVABILITY ARCHITECTURE                                         │
+│                                                                     │
+│  Your Laptop                                                        │
+│    ↓ (runs simple_observability.py or test_agent.sh)              │
+│  Python CLI Script (boto3 client)                                  │
+│    ↓ (API call: invoke_agent)                                      │
+│  AgentCore Runtime (Managed Service)                               │
+│    ├─ Automatic CloudWatch Instrumentation (AgentCore managed)    │
+│    │  ├─ Vended traces to CloudWatch Logs                         │
+│    │  └─ Vended traces to X-Ray                                   │
+│    ├─ Strands Agent (deployed to Runtime)                         │
+│    │  ├─ Weather Tool (built-in)                                  │
+│    │  ├─ Time Tool (built-in)                                     │
+│    │  └─ Calculator Tool (built-in)                               │
+│    │  └─ OTEL Exporter (optional, if BRAINTRUST_API_KEY is set)  │
+│    │                                                               │
+│  ┌──────────────────────────┬────────────────────────────────────┐
+│  │ CloudWatch Logs + X-Ray  │ Braintrust (Optional)              │
+│  │ (from AgentCore Runtime) │ (from Strands OTEL export)         │
+│  │ Always enabled           │ Only if BRAINTRUST_API_KEY is set  │
+│  └──────────────────────────┴────────────────────────────────────┘
+│                                                                     │
+│  Key: CloudWatch = automatic infrastructure-level observability    │
+│       Braintrust = optional agent-level OTEL export (if enabled)   │
+│       Different trace sources, complementary platforms             │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Use case key Features
 
-- **Automatic OTEL Instrumentation**: AgentCore Runtime automatically generates OpenTelemetry traces with zero code changes
-- **Dual Platform Export**: Simultaneous trace export to CloudWatch Logs/X-Ray and Braintrust using vendor-neutral OTEL format
-- **Fully Managed**: AgentCore Runtime handles all infrastructure management and automatic instrumentation
+- **Automatic CloudWatch Observability**: AgentCore Runtime automatically provides vended traces to CloudWatch Logs and X-Ray with zero code changes
+- **Optional Braintrust Export**: Strands agent can optionally export OpenTelemetry traces directly to Braintrust platform for AI-focused monitoring
+- **Dual-Platform Capability**: View the same agent execution in CloudWatch (AWS-native) and optionally in Braintrust (AI-focused) using different trace sources
+- **Fully Managed Runtime**: AgentCore Runtime handles all infrastructure management and automatic CloudWatch instrumentation
 - **Built-in Tools**: Strands agent with weather, time, and calculator tools for demonstration
-- **Comprehensive Tracing**: Captures agent invocation, model calls, tool selection, and execution spans
-- **Platform Comparison**: Demonstrates AWS-native vs AI-focused observability capabilities
+- **Comprehensive Tracing**: Captures agent invocation, model calls, tool selection, and execution spans in both platforms
+- **Platform Comparison**: Demonstrates AWS-native vs AI-focused observability strengths and trade-offs
 
 ## Detailed Documentation
 
@@ -198,10 +202,9 @@ uv sync
 # 2. Deploy agent (with optional Braintrust observability)
 # Option A: Use .env file (recommended for repeated deployments)
 cp .env.example .env
-# Edit .env - add your Braintrust credentials:
-#   BRAINTRUST_API_KEY=sk-user-xxxxxxxxxxxxxxxxxxxxx
-#   BRAINTRUST_PROJECT_ID=proj-xxxxxxxxxxxxxxxxxxxxx
-# Agent will automatically export OTEL traces to both CloudWatch and Braintrust
+# Edit .env - add your Braintrust credentials (optional):
+#   BRAINTRUST_API_KEY=bt-xxxxxxxxxxxxxxxxxxxxx
+# CloudWatch tracing is automatic. Braintrust is optional (only if BRAINTRUST_API_KEY is set)
 scripts/deploy_agent.sh
 
 # Option B: CloudWatch observability only (default, no Braintrust)
@@ -213,14 +216,12 @@ scripts/deploy_agent.sh --region us-west-2  # Will use credentials from .env
 
 # Option D: Override both .env and command-line arguments
 # Add exact parameter names to .env first:
-#   BRAINTRUST_API_KEY=sk-user-xxxxxxxxxxxxxxxxxxxxx
-#   BRAINTRUST_PROJECT_ID=proj-xxxxxxxxxxxxxxxxxxxxx
+#   BRAINTRUST_API_KEY=bt-xxxxxxxxxxxxxxxxxxxxx
 # Then deploy with command-line overrides:
 scripts/deploy_agent.sh \
     --region us-east-1 \
-    --braintrust-api-key sk-user-xxxxxxxxxxxxxxxxxxxxx \
-    --braintrust-project-id proj-xxxxxxxxxxxxxxxxxxxxx
-# Agent will export OTEL metrics and traces to Braintrust
+    --braintrust-api-key bt-xxxxxxxxxxxxxxxxxxxxx
+# Agent will export OTEL traces to Braintrust (CloudWatch is automatic)
 
 # Option E: Update existing agent (auto-update on conflict)
 # Use this flag to update an already-deployed agent instead of creating a new one:
@@ -463,26 +464,28 @@ View the same traces in Braintrust with AI-focused metrics:
 
 ### Platform Comparison
 
-**CloudWatch Strengths:**
+**CloudWatch (Automatic, Infrastructure-Level Traces from AgentCore Runtime):**
 - Native AWS integration with other services
 - CloudWatch Alarms for automated alerting
 - VPC Flow Logs correlation
 - Longer retention options (up to 10 years)
 - Integration with AWS Systems Manager and AWS Config
+- Receives vended traces from AgentCore Runtime
 
-**Braintrust Strengths:**
+**Braintrust (Optional, Agent-Level OTEL Traces from Strands Agent):**
 - AI-focused metrics (quality scores, hallucination detection)
 - LLM cost tracking across providers
 - Prompt version comparison and A/B testing
 - Evaluation frameworks for quality assurance
 - Specialized AI/ML visualizations and analytics
+- Requires `BRAINTRUST_API_KEY` environment variable
 
-**Both Platforms:**
-- Receive identical OTEL traces (vendor-neutral format)
+**Both Platforms Provide:**
 - Real-time trace ingestion
 - Query by trace ID or session ID
 - Span-level detail with attributes
 - Support for distributed tracing
+- **Note**: Different trace sources (vended traces vs OTEL format), not identical
 
 ## Cleanup
 

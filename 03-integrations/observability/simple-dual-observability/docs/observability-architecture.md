@@ -180,7 +180,7 @@ AgentCore Runtime automatically instruments your agent code using AWS OpenTeleme
    - Human-readable log in `runtime-logs` stream
    - Structured JSON in `otel-rt-logs` stream
 
-**OTEL Configuration**: OTEL instrumentation can be disabled via the `disable_otel` parameter during deployment. When disabled, only `runtime-logs` are generated. This tutorial keeps OTEL enabled to support dual platform export (CloudWatch + Braintrust).
+**OTEL Configuration**: OTEL instrumentation can be disabled via the `disable_otel` parameter during deployment. When disabled, only `runtime-logs` are generated. This tutorial keeps OTEL enabled to support optional Braintrust observability export (CloudWatch is always available from AgentCore Runtime regardless of OTEL setting).
 
 ### No Code Changes Required
 
@@ -209,7 +209,7 @@ AgentCore creates log streams in your CloudWatch log group. The specific streams
 └── otel-rt-logs          # Structured OTEL JSON logs (only when OTEL enabled)
 ```
 
-**Note**: The `otel-rt-logs` stream is only created when OpenTelemetry instrumentation is enabled. This tutorial enables OTEL to support dual platform export.
+**Note**: The `otel-rt-logs` stream is only created when OpenTelemetry instrumentation is enabled. This tutorial enables OTEL to support optional export to Braintrust (via `BRAINTRUST_API_KEY`).
 
 ### Viewing Logs
 
