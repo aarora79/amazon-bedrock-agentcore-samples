@@ -36,13 +36,17 @@ def lambda_handler(
     try:
         logger.info(f"Weather Lambda invoked with event: {json.dumps(event, default=str)}")
 
-        # Parse request body
-        body = event.get("body", "{}")
-        if isinstance(body, str):
-            body = json.loads(body)
-
-        # Extract city parameter
-        city = body.get("city")
+        # Gateway/MCP sends parameters directly in event, not wrapped in body
+        # Check if this is an API Gateway event (has 'body') or direct invocation
+        if "body" in event:
+            # API Gateway format
+            body = event["body"]
+            if isinstance(body, str):
+                body = json.loads(body)
+            city = body.get("city")
+        else:
+            # Direct invocation format (used by Gateway/MCP)
+            city = event.get("city")
         if not city:
             logger.error("Missing required parameter: city")
             return {

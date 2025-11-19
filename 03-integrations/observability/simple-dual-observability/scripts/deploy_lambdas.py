@@ -92,25 +92,26 @@ def _create_lambda_role(
 
 def _create_deployment_package(
     lambda_dir: Path,
+    lambda_filename: str,
     output_zip: Path,
 ) -> None:
     """Create Lambda deployment package.
 
     Args:
         lambda_dir: Directory containing Lambda function code
+        lambda_filename: Specific Lambda file to package (e.g., "weather_lambda.py")
         output_zip: Path to output ZIP file
     """
-    logger.info(f"Creating deployment package for {lambda_dir.name}")
+    logger.info(f"Creating deployment package for {lambda_filename}")
 
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
 
-        # Copy Lambda function file
-        lambda_files = list(lambda_dir.glob("*_lambda.py"))
-        if not lambda_files:
-            raise ValueError(f"No Lambda function found in {lambda_dir}")
+        # Copy specific Lambda function file
+        lambda_file = lambda_dir / lambda_filename
+        if not lambda_file.exists():
+            raise ValueError(f"Lambda function {lambda_filename} not found in {lambda_dir}")
 
-        lambda_file = lambda_files[0]
         shutil.copy(lambda_file, temp_path / lambda_file.name)
 
         # Copy tools directory
@@ -177,6 +178,10 @@ def _deploy_lambda_function(
             ZipFile=zip_data,
         )
         logger.info(f"Updated existing Lambda function: {function_name}")
+
+        # Wait for function to be updated before updating configuration
+        logger.info(f"Waiting for {function_name} to finish updating...")
+        lambda_client.get_waiter("function_updated").wait(FunctionName=function_name)
 
         # Update configuration
         lambda_client.update_function_configuration(
@@ -287,16 +292,19 @@ Example usage:
     lambda_configs = [
         {
             "name": "agentcore-weather-tool",
+            "filename": "weather_lambda.py",
             "handler": "weather_lambda.lambda_handler",
             "description": "Weather information tool",
         },
         {
             "name": "agentcore-time-tool",
+            "filename": "time_lambda.py",
             "handler": "time_lambda.lambda_handler",
             "description": "Time and timezone tool",
         },
         {
             "name": "agentcore-calculator-tool",
+            "filename": "calculator_lambda.py",
             "handler": "calculator_lambda.lambda_handler",
             "description": "Mathematical calculator tool",
         },
@@ -307,10 +315,11 @@ Example usage:
 
     for config in lambda_configs:
         function_name = config["name"]
+        lambda_filename = config["filename"]
 
         # Create deployment package
         zip_file = script_dir / f"{function_name}.zip"
-        _create_deployment_package(lambda_dir, zip_file)
+        _create_deployment_package(lambda_dir, lambda_filename, zip_file)
 
         # Deploy Lambda function
         result = _deploy_lambda_function(

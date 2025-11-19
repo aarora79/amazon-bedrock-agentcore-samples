@@ -36,13 +36,17 @@ def lambda_handler(
     try:
         logger.info(f"Time Lambda invoked with event: {json.dumps(event, default=str)}")
 
-        # Parse request body
-        body = event.get("body", "{}")
-        if isinstance(body, str):
-            body = json.loads(body)
-
-        # Extract timezone parameter
-        timezone = body.get("timezone")
+        # Gateway/MCP sends parameters directly in event, not wrapped in body
+        # Check if this is an API Gateway event (has 'body') or direct invocation
+        if "body" in event:
+            # API Gateway format
+            body = event["body"]
+            if isinstance(body, str):
+                body = json.loads(body)
+            timezone = body.get("timezone")
+        else:
+            # Direct invocation format (used by Gateway/MCP)
+            timezone = event.get("timezone")
         if not timezone:
             logger.error("Missing required parameter: timezone")
             return {
