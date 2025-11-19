@@ -514,7 +514,7 @@ python scripts/configure_gateway.py --region us-east-1
 # Step 4: Deploy agent with gateway (reads gateway ARN from .gateway_config.json)
 export USE_GATEWAY=true
 export GATEWAY_ARN=$(cat scripts/.gateway_config.json | grep gateway_arn | cut -d'"' -f4)
-python scripts/deploy_agent.py --region us-east-1 --entrypoint agent/weather_time_agent_gateway.py
+python scripts/deploy_agent.py --region us-east-1
 ```
 
 **Gateway Configuration Files:**

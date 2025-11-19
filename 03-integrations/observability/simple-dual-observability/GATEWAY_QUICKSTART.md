@@ -45,7 +45,7 @@ python configure_gateway.py --region us-east-1
 # Step 4: Deploy agent with Gateway mode (2 min)
 export USE_GATEWAY=true
 export GATEWAY_ARN=$(python -c "import json; print(json.load(open('.gateway_config.json'))['gateway']['gateway_arn'])")
-python deploy_agent.py --region us-east-1 --entrypoint agent/weather_time_agent_gateway.py
+python deploy_agent.py --region us-east-1
 ```
 
 ## Test the Deployment

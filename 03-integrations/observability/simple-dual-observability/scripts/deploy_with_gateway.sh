@@ -120,8 +120,8 @@ if [ "$USE_GATEWAY" = "true" ]; then
         fi
     fi
 
-    # Use gateway-enabled agent
-    ENTRYPOINT="agent/weather_time_agent_gateway.py"
+    # Use default agent with gateway mode enabled via environment variable
+    ENTRYPOINT="agent/weather_time_agent.py"
     GATEWAY_ENV_VAR="--env USE_GATEWAY=true --env GATEWAY_ARN=$GATEWAY_ARN"
 else
     echo "Local tool mode - using agent with local tools..."
