@@ -196,8 +196,8 @@ def _create_gateway(
             try:
                 gateway_details = bedrock_agent_client.get_gateway(gatewayIdentifier=gateway_id)
                 status = gateway_details.get("status")
-                if status == "ACTIVE":
-                    logger.info(f"Gateway is now ACTIVE")
+                if status in ["ACTIVE", "READY"]:
+                    logger.info(f"Gateway is now {status}")
                     break
                 elif status in ["FAILED", "DELETING", "DELETED"]:
                     raise ValueError(f"Gateway creation failed with status: {status}")
@@ -211,7 +211,7 @@ def _create_gateway(
                 else:
                     raise
         else:
-            raise TimeoutError(f"Gateway did not become ACTIVE within {max_attempts * 5} seconds")
+            raise TimeoutError(f"Gateway did not become ACTIVE/READY within {max_attempts * 5} seconds")
 
         return {
             "gateway_id": gateway_id,
