@@ -29,9 +29,11 @@ The tutorial shows how AgentCore Runtime provides automatic observability via Cl
 
 ### Use case Architecture
 
+#### Local Tools Mode (Default)
+
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  OBSERVABILITY ARCHITECTURE                                         │
+│  OBSERVABILITY ARCHITECTURE - LOCAL TOOLS MODE                      │
 │                                                                     │
 │  Your Laptop                                                        │
 │    ↓ (runs simple_observability.py or test_agent.sh)              │
@@ -41,9 +43,9 @@ The tutorial shows how AgentCore Runtime provides automatic observability via Cl
 │    ├─ Automatic CloudWatch Instrumentation (AgentCore managed)    │
 │    │  └─ Vended traces to CloudWatch Logs                         │
 │    ├─ Strands Agent (deployed to Runtime)                         │
-│    │  ├─ Weather Tool (built-in)                                  │
-│    │  ├─ Time Tool (built-in)                                     │
-│    │  └─ Calculator Tool (built-in)                               │
+│    │  ├─ Weather Tool (local)                                     │
+│    │  ├─ Time Tool (local)                                        │
+│    │  └─ Calculator Tool (local)                                  │
 │    │  └─ OTEL Exporter (optional, if BRAINTRUST_API_KEY is set)  │
 │    │                                                               │
 │  ┌──────────────────────────┬────────────────────────────────────┐
@@ -55,6 +57,41 @@ The tutorial shows how AgentCore Runtime provides automatic observability via Cl
 │  Key: CloudWatch = automatic infrastructure-level observability    │
 │       Braintrust = optional agent-level OTEL export (if enabled)   │
 │       Different trace sources, complementary platforms             │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### Gateway Tools Mode (Optional)
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  OBSERVABILITY ARCHITECTURE - GATEWAY TOOLS MODE                    │
+│                                                                     │
+│  Your Laptop                                                        │
+│    ↓ (runs simple_observability.py or test_agent.sh)              │
+│  Python CLI Script (boto3 client)                                  │
+│    ↓ (API call: invoke_agent)                                      │
+│  AgentCore Runtime (Managed Service)                               │
+│    ├─ Automatic CloudWatch Instrumentation (AgentCore managed)    │
+│    │  └─ Vended traces to CloudWatch Logs                         │
+│    ├─ Strands Agent (deployed to Runtime)                         │
+│    │  └─ Gateway Tool Wrappers                                    │
+│    │     └─ OTEL Exporter (optional, if BRAINTRUST_API_KEY)      │
+│    │                                                               │
+│    ↓ (invoke_gateway_tool API call)                                │
+│  AgentCore Gateway                                                  │
+│    ├─ Weather Target → Lambda Function                            │
+│    ├─ Time Target → Lambda Function                               │
+│    └─ Calculator Target → Lambda Function                         │
+│                                                                     │
+│  ┌──────────────────────────┬────────────────────────────────────┐
+│  │ CloudWatch Logs          │ Braintrust (Optional)              │
+│  │ (from AgentCore Runtime) │ (from Strands OTEL export)         │
+│  │ + Lambda Logs            │ Only if BRAINTRUST_API_KEY is set  │
+│  └──────────────────────────┴────────────────────────────────────┘
+│                                                                     │
+│  Key: CloudWatch = automatic infrastructure-level observability    │
+│       Braintrust = optional agent-level OTEL export (if enabled)   │
+│       Gateway = production-ready tool scaling with Lambda          │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -182,6 +219,8 @@ cp .env.example .env
 | `BRAINTRUST_API_KEY` | Conditional | Braintrust API key for dual observability (optional) |
 | `BRAINTRUST_PROJECT_ID` | Conditional | Braintrust project ID for dual observability (optional) |
 | `AGENTCORE_AGENT_ID` | No | Agent ID (auto-saved to `.deployment_metadata.json` after deployment) |
+| `USE_GATEWAY` | No | Enable Gateway mode for Lambda-based tools (default: `false`) |
+| `GATEWAY_ARN` | Conditional | Gateway ARN (required only if `USE_GATEWAY=true`) |
 
 **Important Notes:**
 - The `.env` file is in `.gitignore` and will never be committed to the repository
@@ -371,6 +410,119 @@ uv run python scripts/get_cw_logs.py --follow
 ```
 
 ## Deployment Scenarios
+
+This tutorial supports two tool deployment modes:
+
+1. **Local Tools Mode (Default)**: Tools execute within the agent container - simpler deployment, lower latency
+2. **Gateway Tools Mode**: Tools deployed as Lambda functions, invoked via AgentCore Gateway - better for production scaling
+
+### Tool Deployment Modes
+
+#### Local Tools Mode (Default)
+
+The default mode where tools execute within the agent container:
+
+```bash
+# Deploy with local tools (default)
+scripts/deploy_agent.sh
+
+# Or explicitly set USE_GATEWAY=false in .env file
+USE_GATEWAY=false
+scripts/deploy_agent.sh
+```
+
+**Advantages:**
+- Simpler deployment (single agent container)
+- Lower latency (no network calls to Lambda)
+- Easier debugging (all code in one container)
+
+**When to use:**
+- Development and testing
+- Simple applications with low traffic
+- When you want minimal infrastructure
+
+#### Gateway Tools Mode
+
+Deploy tools as Lambda functions with AgentCore Gateway:
+
+```bash
+# Deploy with Gateway tools
+scripts/deploy_with_gateway.sh --use-gateway true --region us-east-1
+
+# Or set in .env file
+USE_GATEWAY=true
+GATEWAY_ARN=arn:aws:bedrock:us-east-1:123456789012:gateway/abc123
+scripts/deploy_with_gateway.sh
+```
+
+This will:
+1. Deploy three Lambda functions (weather, time, calculator)
+2. Setup Amazon Cognito OAuth (for Gateway authentication)
+3. Create and configure an AgentCore Gateway
+4. Register Lambda functions as gateway targets
+5. Deploy the agent with gateway-enabled tool invocation
+
+**Advantages:**
+- Independent scaling of tools (Lambda auto-scales)
+- Better for production environments
+- Tools can be updated without redeploying agent
+- Better resource isolation and security
+
+**When to use:**
+- Production deployments
+- High-traffic applications
+- When tools need independent scaling
+- When tools require different resource limits
+
+**Architecture Comparison:**
+
+Local Tools:
+```
+Client → AgentCore Runtime → Agent Container → Local Tools
+```
+
+Gateway Tools:
+```
+Client → AgentCore Runtime → Agent Container → AgentCore Gateway → Lambda Functions
+```
+
+**Gateway Deployment Steps:**
+
+1. Set environment variables in `.env`:
+```bash
+USE_GATEWAY=true
+AWS_REGION=us-east-1
+```
+
+2. Run unified deployment script:
+```bash
+# Deploys Lambda functions, configures gateway, and deploys agent
+scripts/deploy_with_gateway.sh --use-gateway true
+```
+
+3. (Optional) Deploy components separately:
+```bash
+# Step 1: Deploy Lambda functions
+python scripts/deploy_lambdas.py --region us-east-1
+
+# Step 2: Setup Cognito OAuth (required for Gateway authentication)
+python scripts/setup_cognito.py --region us-east-1
+
+# Step 3: Configure AgentCore Gateway (uses Cognito config from Step 2)
+python scripts/configure_gateway.py --region us-east-1
+
+# Step 4: Deploy agent with gateway (reads gateway ARN from .gateway_config.json)
+export USE_GATEWAY=true
+export GATEWAY_ARN=$(cat scripts/.gateway_config.json | grep gateway_arn | cut -d'"' -f4)
+python scripts/deploy_agent.py --region us-east-1 --entrypoint agent/weather_time_agent_gateway.py
+```
+
+**Gateway Configuration Files:**
+
+After deployment, these files are created:
+- `.lambda_deployment.json` - Lambda function ARNs and metadata
+- `.cognito_config.json` - Cognito User Pool and OAuth credentials
+- `.gateway_config.json` - Gateway ARN and target registrations
 
 ### Initial Deployment
 
