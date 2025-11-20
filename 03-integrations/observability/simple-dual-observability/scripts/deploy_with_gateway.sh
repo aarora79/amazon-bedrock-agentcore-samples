@@ -137,7 +137,7 @@ echo "Step 3: Deploying agent to AgentCore Runtime..."
 echo ""
 
 # Build deployment command
-DEPLOY_CMD="python $SCRIPT_DIR/deploy_agent.py --region $AWS_REGION --agent-name $AGENT_NAME"
+DEPLOY_CMD="python $SCRIPT_DIR/deploy_agent.py --region $AWS_REGION --name $AGENT_NAME"
 
 # Add Braintrust configuration if provided
 if [ -n "$BRAINTRUST_API_KEY" ]; then

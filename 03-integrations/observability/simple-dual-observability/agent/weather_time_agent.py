@@ -80,6 +80,10 @@ def _get_gateway_access_token() -> str | None:
     try:
         import requests
 
+        # Ensure cognito_domain has https:// scheme
+        if not cognito_domain.startswith("https://"):
+            cognito_domain = f"https://{cognito_domain}"
+
         # Cognito OAuth token URL
         token_url = f"{cognito_domain}/oauth2/token"
 
