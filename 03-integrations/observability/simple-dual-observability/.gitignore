@@ -10,6 +10,9 @@ Dockerfile
 
 # Generated configuration (in scripts/ subdirectory)
 scripts/.deployment_metadata.json
+scripts/.cognito_config.json
+scripts/.gateway_config.json
+scripts/.lambda_deployment.json
 scripts/cloudwatch-urls.txt
 scripts/xray-permissions.json
 scripts/braintrust-usage.md

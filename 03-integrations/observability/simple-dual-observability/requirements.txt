@@ -16,5 +16,6 @@ boto3
 # Agent dependencies
 pytz
 pydantic
+requests  # For Cognito OAuth token retrieval
 
 # Note: OpenTelemetry is installed separately in Dockerfile

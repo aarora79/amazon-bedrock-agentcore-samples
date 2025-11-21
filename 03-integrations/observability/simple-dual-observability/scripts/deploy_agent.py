@@ -136,15 +136,50 @@ def _deploy_agent(
             "auto_update_on_conflict": auto_update_on_conflict,
         }
 
+        # Collect environment variables to pass to the runtime container
+        env_vars = {}
+
+        # Add Gateway configuration if present
+        use_gateway = os.environ.get("USE_GATEWAY")
+        gateway_arn = os.environ.get("GATEWAY_ARN")
+        if use_gateway:
+            logger.info(f"Configuring Gateway mode: USE_GATEWAY={use_gateway}")
+            env_vars["USE_GATEWAY"] = use_gateway
+            if gateway_arn:
+                logger.info(f"Gateway ARN: {gateway_arn}")
+                env_vars["GATEWAY_ARN"] = gateway_arn
+
+            # Add Cognito credentials for Gateway authentication
+            cognito_domain = os.environ.get("COGNITO_DOMAIN")
+            cognito_client_id = os.environ.get("COGNITO_CLIENT_ID")
+            cognito_client_secret = os.environ.get("COGNITO_CLIENT_SECRET")
+
+            if cognito_domain and cognito_client_id and cognito_client_secret:
+                logger.info("Configuring Cognito credentials for Gateway authentication")
+                env_vars["COGNITO_DOMAIN"] = cognito_domain
+                env_vars["COGNITO_CLIENT_ID"] = cognito_client_id
+                env_vars["COGNITO_CLIENT_SECRET"] = cognito_client_secret
+            else:
+                logger.warning(
+                    "Gateway mode enabled but Cognito credentials not found - "
+                    "Gateway authentication may fail"
+                )
+
         # Add Braintrust environment variables if enabled
         if enable_braintrust:
             logger.info("Configuring Braintrust OTEL export...")
-            launch_kwargs["env_vars"] = {
-                "OTEL_EXPORTER_OTLP_ENDPOINT": "https://api.braintrust.dev/otel",
-                "OTEL_EXPORTER_OTLP_HEADERS": f"authorization=Bearer {braintrust_api_key},x-bt-parent=project_id:{braintrust_project_id}",
-                "BRAINTRUST_API_KEY": braintrust_api_key,
-                "BRAINTRUST_PROJECT_ID": braintrust_project_id,
-            }
+            env_vars.update(
+                {
+                    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://api.braintrust.dev/otel",
+                    "OTEL_EXPORTER_OTLP_HEADERS": f"authorization=Bearer {braintrust_api_key},x-bt-parent=project_id:{braintrust_project_id}",
+                    "BRAINTRUST_API_KEY": braintrust_api_key,
+                    "BRAINTRUST_PROJECT_ID": braintrust_project_id,
+                }
+            )
+
+        # Pass environment variables to runtime if any are configured
+        if env_vars:
+            launch_kwargs["env_vars"] = env_vars
 
         launch_result = agentcore_runtime.launch(**launch_kwargs)
     except Exception as e:

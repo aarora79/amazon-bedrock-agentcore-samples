@@ -4,6 +4,12 @@
 cloudwatch-urls.txt
 xray-permissions.json
 braintrust-usage.md
+.lambda_deployment.json
+.gateway_config.json
+.cognito_config.json
+
+# Lambda deployment packages
+*.zip
 
 # Temporary files
 *.tmp
